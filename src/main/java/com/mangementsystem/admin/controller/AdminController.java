@@ -17,7 +17,7 @@ public class AdminController {
     private final AdminService adminService;
 
     @PostMapping("/admin/signup")
-    public ResponseEntity<AdminSignupResponse> adminSignup(@RequestBody AdminSignupRequest request){
+    public ResponseEntity<AdminSignupResponse> adminSignup(@Valid @RequestBody AdminSignupRequest request){
         return ResponseEntity.status(HttpStatus.CREATED).body(adminService.save(request));
     }
 
@@ -27,11 +27,16 @@ public class AdminController {
         session.setAttribute("sessionAdmin", sessionAdmin);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-//    @PostMapping("/admin/login")
-//    public ResponseEntity<Void> adminLogin(@RequestBody AdminLoginRequest){
-//        return ResponseEntity.status(HttpStatus.OK).body();
-//    }
-//    }
+
+    @PostMapping("/admins/{adminId}/approve")
+    public ResponseEntity<Void> adminApprove(@PathVariable Long adminId, HttpSession session) {
+        SessionAdmin loginAdmin = (SessionAdmin) session.getAttribute("sessionAdmin");
+        if (loginAdmin == null) {
+            throw new IllegalStateException("로그인이 필요합니다.");
+        }
+        adminService.approveAdmin(adminId, loginAdmin);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 
     // 단건 조회
     @GetMapping("/admins/{adminId}")
@@ -39,6 +44,16 @@ public class AdminController {
             @PathVariable Long adminId
     ){
         return ResponseEntity.status(HttpStatus.OK).body(adminService.getOneAdmin(adminId));
+    }
+
+    @PostMapping("/admins/logout")
+    public ResponseEntity<Void> adminLogout(
+            @SessionAttribute(name = "sessionAdmin", required = false ) SessionAdmin sessionAdmin, HttpSession session) {
+        if(sessionAdmin == null){
+            return ResponseEntity.badRequest().build();
+        }
+        session.invalidate();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     // 모두 조회
@@ -114,7 +129,7 @@ public class AdminController {
             @PathVariable Long adminId
     ) {
 
-        adminService.Admindelete(adminId);
+        adminService.AdminDelete(adminId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
