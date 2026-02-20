@@ -1,0 +1,13 @@
+package com.mangementsystem.admin.dto;
+
+
+import com.mangementsystem.admin.entity.AdminStatus;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+
+@Getter
+public class AdminStatusUpdateRequest {
+
+    @NotNull(message = "권한은 필수입니다.")
+    private AdminStatus status;
+}
