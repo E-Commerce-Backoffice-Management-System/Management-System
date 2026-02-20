@@ -2,8 +2,10 @@ package com.mangementsystem.admin.service;
 
 import com.mangementsystem.admin.dto.*;
 import com.mangementsystem.admin.entity.Admin;
+import com.mangementsystem.admin.entity.AdminStatus;
 import com.mangementsystem.admin.repository.AdminRepository;
 import com.mangementsystem.config.PasswordEncoder;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +57,8 @@ public class AdminService {
                 admin.getId(),
                 admin.getEmail(),
                 admin.getPhoneNumber(),
+                admin.getRole(),
+                admin.getStatus(),
                 admin.getCreatedAt(),
                 admin.getUpdatedAt()
         );
@@ -73,6 +77,8 @@ public class AdminService {
                     admin.getId(),
                     admin.getEmail(),
                     admin.getPhoneNumber(),
+                    admin.getRole(),
+                    admin.getStatus(),
                     admin.getCreatedAt(),
                     admin.getUpdatedAt()
             );
@@ -87,7 +93,7 @@ public class AdminService {
     public AdminUpdateResponse updateAdmin(Long adminId, AdminUpdateRequest request) {
 
         Admin admin=adminRepository.findById(adminId).orElseThrow(
-                ()-> new IllegalStateException("없는 일정이거나, 유저정보가 없습니다.")
+                ()-> new IllegalStateException(" 정보가 없습니다.")
         );
         admin.Adminupdate(request.getName(),request.getEmail(),request.getPhoneNumber());
         return new AdminUpdateResponse(
@@ -104,7 +110,7 @@ public class AdminService {
     public void Admindelete(Long adminId) {
         boolean existence = adminRepository.existsById(adminId);
         if (!existence) {
-            throw new IllegalStateException("없는 게시글 입니다.");
+            throw new IllegalStateException("없습니다.");
         }
 
         adminRepository.deleteById(adminId);
@@ -136,4 +142,75 @@ public class AdminService {
     }
 
 
+    // 관리자 역할 변경
+    @Transactional
+    public AdminRoleUpdateResponse updateRole(Long adminId, AdminRoleUpdateRequest request) {
+        Admin admin=adminRepository.findById(adminId).orElseThrow(
+                ()-> new IllegalStateException("정보가 없습니다.")
+        );
+        admin.AdminRoleUpdate(request.getRole());
+        return new AdminRoleUpdateResponse(
+                admin.getRole()
+        );
+
+    }
+
+
+    // 관리자 상태 변경
+    @Transactional
+    public AdminStatusUpdateResponse updateStatus(Long adminId, AdminStatusUpdateRequest request) {
+
+        Admin admin=adminRepository.findById(adminId).orElseThrow(
+                ()-> new IllegalStateException("정보가 없습니다.")
+        );
+        admin.AdminStatusUpdate(request.getStatus());
+        return new AdminStatusUpdateResponse(
+                admin.getStatus()
+        );
+    }
+
+    // 관리자 프로필 조회
+    @Transactional(readOnly = true)
+    public AdminGetOneProfileResponse getOneAdminProfile(Long adminId) {
+        Admin admin=adminRepository.findById(adminId).orElseThrow(
+                ()-> new IllegalStateException("없는 일정이거나, 유저정보가 없습니다.")
+        );
+        return new AdminGetOneProfileResponse(
+                admin.getName(),
+                admin.getEmail(),
+                admin.getPhoneNumber()
+        );
+    }
+
+    // 관리자 프로필 수정
+    @Transactional
+    public AdminUpdateProfileResponse getUpdateAdminProfile(
+            Long adminId, @Valid AdminUpdateProfileRequest request
+    ) {
+        Admin admin=adminRepository.findById(adminId).orElseThrow(
+                ()-> new IllegalStateException(" 정보가 없습니다.")
+        );
+        admin.AdminUpdateProfile(request.getName(),request.getEmail(),request.getPhoneNumber());
+
+        return new AdminUpdateProfileResponse(
+                admin.getName(),
+                admin.getEmail(),
+                admin.getName()
+        );
+
+
+    }
+
+    // 관리자 비밀번호 변경
+    @Transactional
+    public AdminUpdatePasswordResponse updateAdminPassword(Long adminId, @Valid AdminUpdatePasswordRequest request) {
+        Admin admin=adminRepository.findById(adminId).orElseThrow(
+                ()-> new IllegalStateException(" 정보가 없습니다.")
+        );
+        admin.AdminUpdatePassword(request.getPassword());
+
+        return new AdminUpdatePasswordResponse(
+                admin.getName()
+        );
+    }
 }
