@@ -46,4 +46,12 @@ public class Admin extends BaseEntity {
         this.status = AdminStatus.PENDING;
     }
 
+    public void approve() {
+        if(this.status != AdminStatus.PENDING) {
+            throw new IllegalStateException("승인 대기중입니다.");
+        }
+        this.status = AdminStatus.ACTIVE;
+    }
+
+
 }
