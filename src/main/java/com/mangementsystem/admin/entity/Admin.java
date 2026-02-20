@@ -48,13 +48,13 @@ public class Admin extends BaseEntity {
 
     public void approve() {
         if(this.status != AdminStatus.PENDING) {
-            throw new IllegalStateException("승인 대기중입니다.");
+            throw new IllegalStateException("승인 대기중인 관리자만 승인할 수 있습니다.");
         }
         this.status = AdminStatus.ACTIVE;
     }
 
 
-    public void Adminupdate(String name,String email,String phoneNumber ) {
+    public void AdminUpdate(String name,String email,String phoneNumber ) {
         this.name = name;
         this.email = email;
         this.phoneNumber=phoneNumber;

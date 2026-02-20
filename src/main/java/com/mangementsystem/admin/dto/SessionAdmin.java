@@ -1,7 +1,9 @@
 package com.mangementsystem.admin.dto;
 
 import com.mangementsystem.admin.entity.AdminRole;
+import lombok.Getter;
 
+@Getter
 public class SessionAdmin {
     private final Long id;
     private final String email;

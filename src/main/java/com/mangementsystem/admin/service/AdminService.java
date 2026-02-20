@@ -2,6 +2,7 @@ package com.mangementsystem.admin.service;
 
 import com.mangementsystem.admin.dto.*;
 import com.mangementsystem.admin.entity.Admin;
+import com.mangementsystem.admin.entity.AdminRole;
 import com.mangementsystem.admin.entity.AdminStatus;
 import com.mangementsystem.admin.repository.AdminRepository;
 import com.mangementsystem.config.PasswordEncoder;
@@ -95,7 +96,7 @@ public class AdminService {
         Admin admin=adminRepository.findById(adminId).orElseThrow(
                 ()-> new IllegalStateException(" 정보가 없습니다.")
         );
-        admin.Adminupdate(request.getName(),request.getEmail(),request.getPhoneNumber());
+        admin.AdminUpdate(request.getName(),request.getEmail(),request.getPhoneNumber());
         return new AdminUpdateResponse(
                 admin.getId(),
                 admin.getName(),
@@ -107,7 +108,7 @@ public class AdminService {
 
     // 삭제
     @Transactional
-    public void Admindelete(Long adminId) {
+    public void AdminDelete(Long adminId) {
         boolean existence = adminRepository.existsById(adminId);
         if (!existence) {
             throw new IllegalStateException("없습니다.");
@@ -116,7 +117,7 @@ public class AdminService {
         adminRepository.deleteById(adminId);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public SessionAdmin login(@Valid AdminLoginRequest request){
         Admin admin = adminRepository.findByEmail(request.getEmail()).orElseThrow(
                 () -> new IllegalStateException("가입되지 않은 이메일 입니다.")
@@ -127,6 +128,9 @@ public class AdminService {
         }
         if(admin.getStatus().equals(AdminStatus.PENDING)){
             throw new IllegalStateException("승인 대기중입니다.");
+        }
+        if(admin.getStatus().equals(AdminStatus.INACTIVE)){
+            throw new IllegalStateException("비활성 상태입니다.");
         }
         if(admin.getStatus().equals(AdminStatus.REJECTED)){
             throw new IllegalStateException("거부되었습니다.");
@@ -139,6 +143,25 @@ public class AdminService {
                 admin.getEmail(),
                 admin.getRole()
         );
+    }
+
+    @Transactional
+    public void approveAdmin(Long adminId, SessionAdmin loginAdmin){
+        if((loginAdmin.getRole() != AdminRole.SUPER_ADMIN)) {
+            throw new IllegalStateException("승인 권한이 없습니다");
+        }
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new IllegalStateException("해당 관리자를 찾을 수 없습니다.")
+        );
+        admin.approve();
+
+    }
+
+    private SessionAdmin adminLogin(SessionAdmin admin){
+        if(admin == null){
+            throw new IllegalStateException("로그인이 필요합니다.");
+        }
+        return admin;
     }
 
 
