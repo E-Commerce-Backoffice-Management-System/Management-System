@@ -3,12 +3,9 @@ package com.mangementsystem.exception;
 import lombok.Getter;
 
 @Getter
-public class FormMistakeException extends RuntimeException {
+public class FormMistakeException extends ServiceException {
 
-    private final ErrorCode errorCode;
-
-    public FormMistakeException(ErrorCode errorCode) {
-        super(errorCode.getMessage());
-        this.errorCode = errorCode;
+    public FormMistakeException(ErrorCode errorCode){
+        super(errorCode);
     }
 }
