@@ -85,68 +85,70 @@ public class AdminController {
             @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdmin(adminId, request, loginAdmin));
+    }
 
-        // 모두 조회 페이징.
-        @GetMapping("/admins")
-        public ResponseEntity<Page<AdminGetOneResponse>> getAllAdmin (
-        @RequestParam(defaultValue = "1") int page,
-        @RequestParam(defaultValue = "10") int size
-    ){
-            return ResponseEntity.status(HttpStatus.OK).body(adminService.getAllAdmin(page, size));
-        }
-        // 비밀번호 변경
-        @PatchMapping("/admins/{adminId}/password")
-        public ResponseEntity<AdminUpdatePasswordResponse> updatePassword (
-                @PathVariable Long adminId,
-                @Valid @RequestBody AdminUpdatePasswordRequest request,
-                @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin){
-            return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminPassword(adminId, request, loginAdmin));
-        }
+    // 모두 조회 페이징.
+    @GetMapping("/admins")
+    public ResponseEntity<Page<AdminGetResponse>> getAllAdmin(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.getAllAdmin(page, size));
+    }
 
-        // 관리자 역할 변경
-        @PatchMapping("/admins/{adminId}/role")
-        public ResponseEntity<AdminRoleUpdateResponse> AdminRoleUpdate (
-                @PathVariable Long adminId,
-                @RequestBody AdminRoleUpdateRequest request,
-                @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin){
-            return ResponseEntity.status(HttpStatus.OK).body(adminService.updateRole(adminId, request, loginAdmin));
-        }
+    // 비밀번호 변경
+    @PatchMapping("/admins/{adminId}/password")
+    public ResponseEntity<AdminUpdatePasswordResponse> updatePassword(
+            @PathVariable Long adminId,
+            @Valid @RequestBody AdminUpdatePasswordRequest request,
+            @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminPassword(adminId, request, loginAdmin));
+    }
 
-        // 관리자 상태 변경
-        @PatchMapping("/admins/{adminId}/status")
-        public ResponseEntity<AdminStatusUpdateResponse> AdminStatusUpdate (
-                @PathVariable Long adminId,
-                @Valid @RequestBody AdminStatusUpdateRequest request,
-                @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin){
-            return ResponseEntity.status(HttpStatus.OK).body(adminService.updateStatus(adminId, request, loginAdmin));
+    // 관리자 역할 변경
+    @PatchMapping("/admins/{adminId}/role")
+    public ResponseEntity<AdminRoleUpdateResponse> AdminRoleUpdate(
+            @PathVariable Long adminId,
+            @RequestBody AdminRoleUpdateRequest request,
+            @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateRole(adminId, request, loginAdmin));
+    }
 
-
-            // 내 프로필 조회 (관리자 개인 프로필 조회)
-            @GetMapping("/admins/{adminId}/profile")
-            public ResponseEntity<AdminGetOneProfileResponse> getAdminProfile (
-                    @PathVariable Long adminId,
-                    @SessionAttribute(name = "sessionAdmin") SessionAdmin loginAdmin){
-                return ResponseEntity.status(HttpStatus.OK).body(adminService.getAdminProfile(adminId, loginAdmin));
+    // 관리자 상태 변경
+    @PatchMapping("/admins/{adminId}/status")
+    public ResponseEntity<AdminStatusUpdateResponse> AdminStatusUpdate(
+            @PathVariable Long adminId,
+            @Valid @RequestBody AdminStatusUpdateRequest request,
+            @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateStatus(adminId, request, loginAdmin));
+    }
 
 
-                // 내 프로필 수정(관리자 개인 프로필 수정)
-                @PutMapping("/admins/{adminId}/profile")
-                public ResponseEntity<AdminUpdateProfileResponse> updateProfile (
-                        @PathVariable Long adminId,
-                        @Valid @RequestBody AdminUpdateProfileRequest request,
-                        @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin){
-                    return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminProfile(adminId, request, loginAdmin));
-                }
+    // 내 프로필 조회 (관리자 개인 프로필 조회)
+    @GetMapping("/admins/{adminId}/profile")
+    public ResponseEntity<AdminGetOneProfileResponse> getAdminProfile(
+            @PathVariable Long adminId,
+            @SessionAttribute(name = "sessionAdmin") SessionAdmin loginAdmin) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.getAdminProfile(adminId, loginAdmin));
+    }
 
-                // 관리자 삭제
-                @DeleteMapping("/admin/{adminId}")
-                public ResponseEntity<Void> deleteAdmin (
-                        @PathVariable Long adminId,
-                        @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin){
-                    adminService.AdminDelete(adminId, loginAdmin);
 
-                }
-            }
-        }
+    // 내 프로필 수정(관리자 개인 프로필 수정)
+    @PutMapping("/admins/{adminId}/profile")
+    public ResponseEntity<AdminUpdateProfileResponse> updateProfile(
+            @PathVariable Long adminId,
+            @Valid @RequestBody AdminUpdateProfileRequest request,
+            @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminProfile(adminId, request, loginAdmin));
+    }
+
+    // 관리자 삭제
+    @DeleteMapping("/admin/{adminId}")
+    public ResponseEntity<Void> deleteAdmin(
+            @PathVariable Long adminId,
+            @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin) {
+        adminService.AdminDelete(adminId, loginAdmin);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
+
