@@ -8,25 +8,25 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class ProductResponse {
+public class UpdateProductResponse {
 
     private final Long id;
     private final String productName;
     private final Category category;
-    private final int price;
     private final int stock;
     private final Status status;
-    private final LocalDateTime createdAt;
+    private final LocalDateTime updatedAt;
     private final String createdBy;
+    private final String createdByEmail;
 
-    public ProductResponse(Product product) {
+    public UpdateProductResponse(Product product) {
         this.id = product.getId();
         this.productName = product.getProductName();
         this.category = product.getCategory();
-        this.price = product.getPrice();
         this.stock = product.getStock();
         this.status = product.getStatus();
-        this.createdAt = product.getCreatedAt();
+        this.updatedAt = product.getUpdatedAt();
         this.createdBy = product.getAdmin().getName();
+        this.createdByEmail = product.getAdmin().getEmail();
     }
 }
