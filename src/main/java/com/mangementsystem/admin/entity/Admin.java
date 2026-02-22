@@ -6,6 +6,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Entity
 @Table(name = "admins")
@@ -37,6 +39,10 @@ public class Admin extends BaseEntity {
     @Column(nullable = false)
     private AdminStatus status;
 
+    private LocalDateTime approvedAt;
+    private LocalDateTime rejectedAt;
+    private String rejectionReason;
+
     public Admin(String name, String email, String password, String phoneNumber, AdminRole role) {
         this.name = name;
         this.email = email;
@@ -45,12 +51,30 @@ public class Admin extends BaseEntity {
         this.role = role;
         this.status = AdminStatus.PENDING;
     }
-
+    // 승인 대기중 관리자를 승인하여 활성화상태로 만들어주는 메서드
     public void approve() {
+        // 만약 해당 관리자가 승인대기중 상태가 아니라면
         if(this.status != AdminStatus.PENDING) {
             throw new IllegalStateException("승인 대기중인 관리자만 승인할 수 있습니다.");
         }
+        // 승인 대기중 -> 활성화
         this.status = AdminStatus.ACTIVE;
+        this.approvedAt = LocalDateTime.now(); // 승인 일시 업데이트
+    }
+    // 관리자 거부 메서드, String reason -> 거부 사유
+    public void reject(String reason) {
+        if (this.status != AdminStatus.PENDING) {
+            throw new IllegalStateException("승인 대기 상태인 관리자만 거부할 수 있습니다.");
+        }
+        // 거부 사유는 필수로 작성, null이면 예외 던지기
+        if (reason == null){
+            throw new IllegalStateException("거부 사유는 필수 입니다.");
+        }
+        // 거부 상태로 변경
+        this.status = AdminStatus.REJECTED;
+        // 거부 사유
+        this.rejectionReason = reason;
+        this.rejectedAt = LocalDateTime.now(); // 거부 일시 업데이트
     }
 
 
@@ -77,10 +101,7 @@ public class Admin extends BaseEntity {
     }
 
     public void AdminUpdatePassword(String password){
-        this.password=password;
+        this.password = password;
     }
-
-
-
 
 }
