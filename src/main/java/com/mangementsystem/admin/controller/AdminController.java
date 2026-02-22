@@ -5,6 +5,7 @@ import com.mangementsystem.admin.service.AdminService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -56,31 +57,35 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    // 모두 조회
+    // 모두 조회 페이징.
     @GetMapping("/admins")
-    public ResponseEntity<List<AdminGetOneResponse>> getAllAdmin(
-
+    public ResponseEntity<Page<AdminGetOneResponse>> getAllAdmin(
+            @RequestParam (defaultValue = "1") int page,
+            @RequestParam (defaultValue = "10") int size
     ){
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.getAllAdmin());
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.getAllAdmin(page,size));
     }
 
 
     // 관리자 수정
     @PutMapping("/admins/{adminId}")
     public ResponseEntity<AdminUpdateResponse> UpdateAdmin(
+            @SessionAttribute(name = "loginUser", required = false) SessionAdmin sessionAdmin,
             @PathVariable Long adminId,
             @Valid @RequestBody AdminUpdateRequest request
+
     ){
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdmin(adminId,request));
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdmin(sessionAdmin,adminId,request));
     }
 
     // 관리자 비밀번호 변경
     @PatchMapping("/admins/{adminId}")
     public ResponseEntity<AdminUpdatePasswordResponse> UpdateAdminPassword(
+            @SessionAttribute(name = "loginUser", required = false) SessionAdmin sessionAdmin,
             @PathVariable Long adminId,
             @Valid @RequestBody AdminUpdatePasswordRequest request
     ){
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminPassword(adminId,request));
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminPassword(sessionAdmin,adminId,request));
 
     }
 
@@ -88,20 +93,22 @@ public class AdminController {
     // 관리자 권한 변경
     @PatchMapping("/admins/{adminId}/role")
     public ResponseEntity<AdminRoleUpdateResponse> updateAdminRole(
+            @SessionAttribute(name = "loginUser", required = false) SessionAdmin sessionAdmin,
             @PathVariable Long adminId,
             @RequestBody AdminRoleUpdateRequest request
     ) {
-        adminService.updateRole(adminId, request);
+        adminService.updateRole(sessionAdmin,adminId, request);
         return ResponseEntity.ok().build();
     }
 
     // 관리자 상태 변경
     @PatchMapping("/admins/{adminId}/status")
     public ResponseEntity<AdminRoleUpdateResponse> updateAdminStatus(
+            @SessionAttribute(name = "loginUser", required = false) SessionAdmin sessionAdmin,
             @PathVariable Long adminId,
             @RequestBody AdminStatusUpdateRequest request
     ) {
-        adminService.updateStatus(adminId, request);
+        adminService.updateStatus(sessionAdmin,adminId, request);
         return ResponseEntity.ok().build();
     }
 
@@ -116,20 +123,22 @@ public class AdminController {
     // 관리자 프로필 수정
     @PutMapping("/admins/{adminId}/profile")
     public ResponseEntity<AdminUpdateProfileResponse> getUpdateAdminProfile(
+            @SessionAttribute(name = "loginUser", required = false) SessionAdmin sessionAdmin,
             @PathVariable Long adminId,
             @Valid @RequestBody AdminUpdateProfileRequest request
     ){
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.getUpdateAdminProfile(adminId,request));
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.getUpdateAdminProfile(sessionAdmin,adminId,request));
     }
 
 
     // 관리자 삭제
     @DeleteMapping("/admins/{adminId}")
     public ResponseEntity<Void> deleteUsers(
+            @SessionAttribute(name = "loginUser", required = false) SessionAdmin sessionAdmin,
             @PathVariable Long adminId
     ) {
 
-        adminService.AdminDelete(adminId);
+        adminService.AdminDelete(sessionAdmin,adminId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

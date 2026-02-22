@@ -8,6 +8,9 @@ import com.mangementsystem.admin.repository.AdminRepository;
 import com.mangementsystem.config.PasswordEncoder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +23,7 @@ public class AdminService {
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
 
+    // 로그인
     @Transactional
     public AdminSignupResponse save(AdminSignupRequest request){
         if(adminRepository.existsByEmail(request.getEmail())){
@@ -68,31 +72,27 @@ public class AdminService {
 
     // 모두 조회
     @Transactional(readOnly = true)
-    public List<AdminGetOneResponse> getAllAdmin() {
-        List<Admin> admins=adminRepository.findAll();
+    public Page<AdminGetOneResponse> getAllAdmin(int page, int size) {
+        Pageable pageable= PageRequest.of(page,size);
+        Page<Admin> admins=adminRepository.findAll(pageable);
 
 
-        List<AdminGetOneResponse> dtos=new ArrayList<>();
-        for(Admin admin: admins){
-            AdminGetOneResponse dto= new AdminGetOneResponse(
-                    admin.getId(),
-                    admin.getEmail(),
-                    admin.getPhoneNumber(),
-                    admin.getRole(),
-                    admin.getStatus(),
-                    admin.getCreatedAt(),
-                    admin.getUpdatedAt()
-            );
-                    dtos.add(dto);
-        }
-        return dtos;
+        return admins.map(admin -> new AdminGetOneResponse(
+                admin.getId(),
+                admin.getEmail(),
+                admin.getPhoneNumber(),
+                admin.getRole(),
+                admin.getStatus(),
+                admin.getCreatedAt(),
+                admin.getUpdatedAt()
+        ));
     }
 
 
     // 관리자 정보 수정
     @Transactional
-    public AdminUpdateResponse updateAdmin(Long adminId, AdminUpdateRequest request) {
-
+    public AdminUpdateResponse updateAdmin(SessionAdmin sessionAdmin,Long adminId, AdminUpdateRequest request) {
+        UserLoginId(sessionAdmin,adminId);
         Admin admin=adminRepository.findById(adminId).orElseThrow(
                 ()-> new IllegalStateException(" 정보가 없습니다.")
         );
@@ -108,7 +108,7 @@ public class AdminService {
 
     // 삭제
     @Transactional
-    public void AdminDelete(Long adminId) {
+    public void AdminDelete(SessionAdmin admin,Long adminId) {
         boolean existence = adminRepository.existsById(adminId);
         if (!existence) {
             throw new IllegalStateException("없습니다.");
@@ -163,11 +163,19 @@ public class AdminService {
         }
         return admin;
     }
+    // 권한 기능.
+    private void UserLoginId(SessionAdmin admin, Long userId) {
+        adminLogin(admin);
+        if (!admin.getId().equals(userId)) {
+            throw new IllegalStateException("권한이 없습니다.");
+        }
+    }
 
 
     // 관리자 역할 변경
     @Transactional
-    public AdminRoleUpdateResponse updateRole(Long adminId, AdminRoleUpdateRequest request) {
+    public AdminRoleUpdateResponse updateRole(SessionAdmin sessionAdmin,Long adminId, AdminRoleUpdateRequest request) {
+        UserLoginId(sessionAdmin,adminId);
         Admin admin=adminRepository.findById(adminId).orElseThrow(
                 ()-> new IllegalStateException("정보가 없습니다.")
         );
@@ -181,8 +189,8 @@ public class AdminService {
 
     // 관리자 상태 변경
     @Transactional
-    public AdminStatusUpdateResponse updateStatus(Long adminId, AdminStatusUpdateRequest request) {
-
+    public AdminStatusUpdateResponse updateStatus(SessionAdmin sessionAdmin,Long adminId, AdminStatusUpdateRequest request) {
+        UserLoginId(sessionAdmin,adminId);
         Admin admin=adminRepository.findById(adminId).orElseThrow(
                 ()-> new IllegalStateException("정보가 없습니다.")
         );
@@ -208,10 +216,14 @@ public class AdminService {
     // 관리자 프로필 수정
     @Transactional
     public AdminUpdateProfileResponse getUpdateAdminProfile(
-            Long adminId, @Valid AdminUpdateProfileRequest request
+            SessionAdmin sessionAdmin
+            ,Long adminId,
+            @Valid AdminUpdateProfileRequest request
+
     ) {
+        UserLoginId(sessionAdmin,adminId);
         Admin admin=adminRepository.findById(adminId).orElseThrow(
-                ()-> new IllegalStateException(" 정보가 없습니다.")
+                ()-> new IllegalStateException("정보가 없습니다.")
         );
         admin.AdminUpdateProfile(request.getName(),request.getEmail(),request.getPhoneNumber());
 
@@ -226,7 +238,8 @@ public class AdminService {
 
     // 관리자 비밀번호 변경
     @Transactional
-    public AdminUpdatePasswordResponse updateAdminPassword(Long adminId, @Valid AdminUpdatePasswordRequest request) {
+    public AdminUpdatePasswordResponse updateAdminPassword(SessionAdmin sessionAdmin,Long adminId, @Valid AdminUpdatePasswordRequest request) {
+        UserLoginId(sessionAdmin,adminId);
         Admin admin=adminRepository.findById(adminId).orElseThrow(
                 ()-> new IllegalStateException(" 정보가 없습니다.")
         );
