@@ -1,9 +1,12 @@
 package com.mangementsystem.exception;
 
-public class ServiceException extends RuntimeException{
+import lombok.Getter;
+
+@Getter
+public class AdminException extends RuntimeException{
     private final ErrorCode errorCode;
 
-    public ServiceException(ErrorCode errorCode){
+    public AdminException(ErrorCode errorCode){
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }

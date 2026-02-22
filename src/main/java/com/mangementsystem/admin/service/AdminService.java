@@ -6,12 +6,13 @@ import com.mangementsystem.admin.entity.AdminRole;
 import com.mangementsystem.admin.entity.AdminStatus;
 import com.mangementsystem.admin.repository.AdminRepository;
 import com.mangementsystem.config.PasswordEncoder;
+import com.mangementsystem.exception.AdminException;
+import com.mangementsystem.exception.ErrorCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,7 +24,7 @@ public class AdminService {
     @Transactional
     public AdminSignupResponse save(AdminSignupRequest request){
         if(adminRepository.existsByEmail(request.getEmail())){
-            throw new IllegalStateException("이미 가입된 이메일입니다.");
+            throw new AdminException(ErrorCode.DUPLICATE_EMAIL);
         }
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
@@ -46,16 +47,18 @@ public class AdminService {
         );
     }
 
-    // 단건 조회
+    // 관리자 단건 조회
     @Transactional(readOnly = true)
-    public AdminGetOneResponse getOneAdmin(Long adminId) {
-
-        Admin admin=adminRepository.findById(adminId).orElseThrow(
-                ()-> new IllegalStateException("없는 일정이거나, 유저정보가 없습니다.")
+    public AdminGetResponse getAdmin(Long adminId, SessionAdmin loginAdmin){
+        if(loginAdmin.getRole() != AdminRole.SUPER_ADMIN){
+            throw new AdminException(ErrorCode.NO_AUTHORITY);
+        }
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
         );
-
-        return new AdminGetOneResponse(
+        return new AdminGetResponse(
                 admin.getId(),
+                admin.getName(),
                 admin.getEmail(),
                 admin.getPhoneNumber(),
                 admin.getRole(),
@@ -65,36 +68,34 @@ public class AdminService {
         );
     }
 
-
-    // 모두 조회
+    // 관리자 전체 조회
     @Transactional(readOnly = true)
-    public List<AdminGetOneResponse> getAllAdmin() {
-        List<Admin> admins=adminRepository.findAll();
-
-
-        List<AdminGetOneResponse> dtos=new ArrayList<>();
-        for(Admin admin: admins){
-            AdminGetOneResponse dto= new AdminGetOneResponse(
-                    admin.getId(),
-                    admin.getEmail(),
-                    admin.getPhoneNumber(),
-                    admin.getRole(),
-                    admin.getStatus(),
-                    admin.getCreatedAt(),
-                    admin.getUpdatedAt()
-            );
-                    dtos.add(dto);
+    public List<AdminGetResponse> getAdmins(SessionAdmin loginAdmin){
+        if(loginAdmin.getRole() != AdminRole.SUPER_ADMIN){
+            throw new AdminException(ErrorCode.NO_AUTHORITY);
         }
-        return dtos;
+        List<Admin> admins = adminRepository.findAll();
+        return admins.stream()
+                .map(admin -> new AdminGetResponse(
+                        admin.getId(),
+                        admin.getName(),
+                        admin.getEmail(),
+                        admin.getPhoneNumber(),
+                        admin.getRole(),
+                        admin.getStatus(),
+                        admin.getCreatedAt(),
+                        admin.getUpdatedAt()
+                )).toList();
     }
 
-
-    // 관리자 정보 수정
-    @Transactional
-    public AdminUpdateResponse updateAdmin(Long adminId, AdminUpdateRequest request) {
-
-        Admin admin=adminRepository.findById(adminId).orElseThrow(
-                ()-> new IllegalStateException(" 정보가 없습니다.")
+    // 괸리자 정보 수정 (슈퍼관리자 권한 확인 로직)
+    @Transactional(readOnly = true)
+    public AdminUpdateResponse updateAdmin(Long adminId, AdminUpdateRequest request,  SessionAdmin loginAdmin){
+        if(loginAdmin.getRole() != AdminRole.SUPER_ADMIN){
+            throw new AdminException(ErrorCode.NO_AUTHORITY);
+        }
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
         );
         admin.AdminUpdate(request.getName(),request.getEmail(),request.getPhoneNumber());
         return new AdminUpdateResponse(
@@ -105,38 +106,41 @@ public class AdminService {
         );
     }
 
-
-    // 삭제
+    // 관리자 삭제, 슈퍼관리자인지 삭제 권한 확인, SoftDelete로 삭제
     @Transactional
-    public void AdminDelete(Long adminId) {
-        boolean existence = adminRepository.existsById(adminId);
-        if (!existence) {
-            throw new IllegalStateException("없습니다.");
+    public void AdminDelete(Long adminId, SessionAdmin loginAdmin) {
+        if(loginAdmin.getRole() != AdminRole.SUPER_ADMIN){
+            throw new AdminException(ErrorCode.NO_AUTHORITY);
         }
 
-        adminRepository.deleteById(adminId);
-    }
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
+        );
+        // Soft Delete
+        admin.AdminStatusUpdate(AdminStatus.INACTIVE);
 
+    }
+    // 로그인 검증
     @Transactional(readOnly = true)
     public SessionAdmin login(@Valid AdminLoginRequest request){
         Admin admin = adminRepository.findByEmail(request.getEmail()).orElseThrow(
-                () -> new IllegalStateException("가입되지 않은 이메일 입니다.")
+                () -> new AdminException(ErrorCode.EMAIL_NOT_FOUND)
         );
         boolean match = passwordEncoder.matches(request.getPassword(), admin.getPassword());
         if(!match){
-            throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
+            throw new AdminException(ErrorCode.MISTAKE_PASSWORD);
         }
         if(admin.getStatus().equals(AdminStatus.PENDING)){
-            throw new IllegalStateException("승인 대기중입니다.");
+            throw new AdminException(ErrorCode.PENDING_ADMIN);
         }
         if(admin.getStatus().equals(AdminStatus.INACTIVE)){
-            throw new IllegalStateException("비활성 상태입니다.");
+            throw new AdminException(ErrorCode.INACTIVE_ADMIN);
         }
         if(admin.getStatus().equals(AdminStatus.REJECTED)){
-            throw new IllegalStateException("거부되었습니다.");
+            throw new AdminException(ErrorCode.REJECTED_ADMIN);
         }
         if(admin.getStatus().equals(AdminStatus.SUSPENDED)){
-            throw new IllegalStateException("정지된 계정입니다.");
+            throw new AdminException(ErrorCode.SUSPENDED_ADMIN);
         }
         return new SessionAdmin (
                 admin.getId(),
@@ -144,17 +148,34 @@ public class AdminService {
                 admin.getRole()
         );
     }
-
+    // 슈퍼관라자가 로그인 승인, 권한 확인
     @Transactional
     public void approveAdmin(Long adminId, SessionAdmin loginAdmin){
         if((loginAdmin.getRole() != AdminRole.SUPER_ADMIN)) {
-            throw new IllegalStateException("승인 권한이 없습니다");
+            throw new AdminException(ErrorCode.NO_AUTHORITY);
         }
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new IllegalStateException("해당 관리자를 찾을 수 없습니다.")
+                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
         );
         admin.approve();
+    }
 
+    // 슈퍼관리자가 승인 대기 상태의 관리자를 활성/거부 상태 변경
+    @Transactional
+    public void updateAdminStatus(Long adminId, AdminStatusRequest request, SessionAdmin loginAdmin){
+        if(loginAdmin.getRole() != AdminRole.SUPER_ADMIN) {
+            throw new AdminException(ErrorCode.NO_AUTHORITY);
+        }
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
+        );
+        if(request.getStatus() == AdminStatus.ACTIVE){
+            admin.approve();
+        } else if(request.getStatus() == AdminStatus.REJECTED){
+            admin.reject(request.getRejectReason());
+        } else {
+            throw new IllegalStateException("잘못된 상태 변경 요청입니다.");
+        }
     }
 
     private SessionAdmin adminLogin(SessionAdmin admin){
@@ -164,27 +185,31 @@ public class AdminService {
         return admin;
     }
 
-
     // 관리자 역할 변경
     @Transactional
-    public AdminRoleUpdateResponse updateRole(Long adminId, AdminRoleUpdateRequest request) {
-        Admin admin=adminRepository.findById(adminId).orElseThrow(
-                ()-> new IllegalStateException("정보가 없습니다.")
+    public AdminRoleUpdateResponse updateRole(Long adminId, AdminRoleUpdateRequest request, SessionAdmin loginAdmin){
+        if(loginAdmin.getRole() != AdminRole.SUPER_ADMIN) {
+            throw new AdminException(ErrorCode.NO_AUTHORITY);
+        }
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
         );
         admin.AdminRoleUpdate(request.getRole());
         return new AdminRoleUpdateResponse(
+                admin.getId(),
+                admin.getName(),
                 admin.getRole()
         );
-
     }
 
-
-    // 관리자 상태 변경
+    // 관리자 상태 변경 (슈퍼관리자가 맞는지 확인)
     @Transactional
-    public AdminStatusUpdateResponse updateStatus(Long adminId, AdminStatusUpdateRequest request) {
-
-        Admin admin=adminRepository.findById(adminId).orElseThrow(
-                ()-> new IllegalStateException("정보가 없습니다.")
+    public AdminStatusUpdateResponse updateStatus(Long adminId, AdminStatusUpdateRequest request, SessionAdmin loginAdmin){
+        if(loginAdmin.getRole() != AdminRole.SUPER_ADMIN) {
+            throw new AdminException(ErrorCode.NO_AUTHORITY);
+        }
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
         );
         admin.AdminStatusUpdate(request.getStatus());
         return new AdminStatusUpdateResponse(
@@ -192,12 +217,16 @@ public class AdminService {
         );
     }
 
-    // 관리자 프로필 조회
+    // 내 프로필 조회 (단건 조회, 본인이 맞는지 확인)
     @Transactional(readOnly = true)
-    public AdminGetOneProfileResponse getOneAdminProfile(Long adminId) {
-        Admin admin=adminRepository.findById(adminId).orElseThrow(
-                ()-> new IllegalStateException("없는 일정이거나, 유저정보가 없습니다.")
+    public AdminGetOneProfileResponse getAdminProfile(Long adminId, SessionAdmin loginAdmin){
+        if(!loginAdmin.getId().equals(adminId)){
+            throw new AdminException(ErrorCode.NO_AUTHORITY);
+        }
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
         );
+
         return new AdminGetOneProfileResponse(
                 admin.getName(),
                 admin.getEmail(),
@@ -205,33 +234,34 @@ public class AdminService {
         );
     }
 
-    // 관리자 프로필 수정
+    // 내 프로필 수정 (본인이 맞는지 확인)
     @Transactional
-    public AdminUpdateProfileResponse getUpdateAdminProfile(
-            Long adminId, @Valid AdminUpdateProfileRequest request
-    ) {
-        Admin admin=adminRepository.findById(adminId).orElseThrow(
-                ()-> new IllegalStateException(" 정보가 없습니다.")
+    public AdminUpdateProfileResponse updateAdminProfile(Long adminId, AdminUpdateProfileRequest request, SessionAdmin loginAdmin){
+        if(!loginAdmin.getId().equals(adminId)){
+            throw new AdminException(ErrorCode.NO_AUTHORITY);
+        }
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
         );
-        admin.AdminUpdateProfile(request.getName(),request.getEmail(),request.getPhoneNumber());
-
+        admin.AdminUpdateProfile(request.getName(), request.getEmail(), request.getPhoneNumber());
         return new AdminUpdateProfileResponse(
                 admin.getName(),
                 admin.getEmail(),
-                admin.getName()
+                admin.getPhoneNumber()
         );
-
-
     }
 
-    // 관리자 비밀번호 변경
+    // 비밀번호 변경
     @Transactional
-    public AdminUpdatePasswordResponse updateAdminPassword(Long adminId, @Valid AdminUpdatePasswordRequest request) {
-        Admin admin=adminRepository.findById(adminId).orElseThrow(
-                ()-> new IllegalStateException(" 정보가 없습니다.")
+    public AdminUpdatePasswordResponse updateAdminPassword(Long adminId, AdminUpdatePasswordRequest request, SessionAdmin loginAdmin){
+        if(!loginAdmin.getId().equals(adminId)){
+            throw new AdminException(ErrorCode.NO_AUTHORITY);
+        }
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
         );
-        admin.AdminUpdatePassword(request.getPassword());
-
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        admin.AdminUpdatePassword(encodedPassword);
         return new AdminUpdatePasswordResponse(
                 admin.getName()
         );
