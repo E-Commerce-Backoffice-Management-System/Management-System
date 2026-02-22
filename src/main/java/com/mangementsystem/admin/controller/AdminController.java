@@ -137,6 +137,7 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminPassword(adminId, request, loginAdmin));
     }
 
+    // 관리자 삭제
     @DeleteMapping("/admin/{adminId}")
     public ResponseEntity<Void> deleteAdmin(
             @PathVariable Long adminId,
