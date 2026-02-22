@@ -10,6 +10,9 @@ import com.mangementsystem.exception.AdminException;
 import com.mangementsystem.exception.ErrorCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +24,7 @@ public class AdminService {
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
 
+    // 로그인
     @Transactional
     public AdminSignupResponse save(AdminSignupRequest request){
         if(adminRepository.existsByEmail(request.getEmail())){
@@ -70,22 +74,19 @@ public class AdminService {
 
     // 관리자 전체 조회
     @Transactional(readOnly = true)
-    public List<AdminGetResponse> getAdmins(SessionAdmin loginAdmin){
-        if(loginAdmin.getRole() != AdminRole.SUPER_ADMIN){
-            throw new AdminException(ErrorCode.NO_AUTHORITY);
-        }
-        List<Admin> admins = adminRepository.findAll();
-        return admins.stream()
-                .map(admin -> new AdminGetResponse(
-                        admin.getId(),
-                        admin.getName(),
-                        admin.getEmail(),
-                        admin.getPhoneNumber(),
-                        admin.getRole(),
-                        admin.getStatus(),
-                        admin.getCreatedAt(),
-                        admin.getUpdatedAt()
-                )).toList();
+    public Page<AdminGetOneResponse> getAllAdmin(int page, int size) {
+        Pageable pageable= PageRequest.of(page,size);
+        Page<Admin> admins=adminRepository.findAll(pageable);
+        
+        return admins.map(admin -> new AdminGetOneResponse(
+                admin.getId(),
+                admin.getEmail(),
+                admin.getPhoneNumber(),
+                admin.getRole(),
+                admin.getStatus(),
+                admin.getCreatedAt(),
+                admin.getUpdatedAt()
+        ));
     }
 
     // 괸리자 정보 수정 (슈퍼관리자 권한 확인 로직)
@@ -95,8 +96,8 @@ public class AdminService {
             throw new AdminException(ErrorCode.NO_AUTHORITY);
         }
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
-        );
+                () -> new AdminException(ErrorCode.USER_NOT_FOUND));
+                
         admin.AdminUpdate(request.getName(),request.getEmail(),request.getPhoneNumber());
         return new AdminUpdateResponse(
                 admin.getId(),
@@ -111,8 +112,6 @@ public class AdminService {
     public void AdminDelete(Long adminId, SessionAdmin loginAdmin) {
         if(loginAdmin.getRole() != AdminRole.SUPER_ADMIN){
             throw new AdminException(ErrorCode.NO_AUTHORITY);
-        }
-
         Admin admin = adminRepository.findById(adminId).orElseThrow(
                 () -> new AdminException(ErrorCode.USER_NOT_FOUND)
         );
@@ -183,6 +182,13 @@ public class AdminService {
             throw new IllegalStateException("로그인이 필요합니다.");
         }
         return admin;
+    }
+    // 권한 기능.
+    private void UserLoginId(SessionAdmin admin, Long userId) {
+        adminLogin(admin);
+        if (!admin.getId().equals(userId)) {
+            throw new IllegalStateException("권한이 없습니다.");
+        }
     }
 
     // 관리자 역할 변경
