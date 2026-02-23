@@ -1,12 +1,8 @@
 package com.managementSystem.product.controller;
 
-import com.managementSystem.admin.dto.SessionAdmin;
-import com.managementSystem.global.ApiResponse;
-import com.managementSystem.product.dto.*;
 import com.managementSystem.product.enums.Category;
 import com.managementSystem.product.enums.Status;
 import com.managementSystem.product.service.ProductService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
