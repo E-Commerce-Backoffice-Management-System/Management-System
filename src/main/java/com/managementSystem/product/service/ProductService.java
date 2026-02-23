@@ -1,12 +1,13 @@
-package com.managementSystem.product.service;
+package com.mangementsystem.product.service;
 
-import com.managementSystem.admin.entity.Admin;
-import com.managementSystem.admin.repository.AdminRepository;
-import com.managementSystem.product.dto.*;
-import com.managementSystem.product.entity.Product;
-import com.managementSystem.product.enums.Category;
-import com.managementSystem.product.enums.Status;
-import com.managementSystem.product.repository.ProductRepository;
+import com.mangementsystem.admin.entity.Admin;
+import com.mangementsystem.admin.repository.AdminRepository;
+import com.mangementsystem.exception.product.ProductNotFoundException;
+import com.mangementsystem.product.dto.*;
+import com.mangementsystem.product.entity.Product;
+import com.mangementsystem.product.enums.Category;
+import com.mangementsystem.product.enums.Status;
+import com.mangementsystem.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -137,12 +138,17 @@ public class ProductService {
         return new ProductResponse(product);
     }
 
-    @Transactional
-    public void deleteProduct(Long productId) {
-        Product product = getProductById(productId);
-        productRepository.delete(product);
-    }
+//    @Transactional
+//    public void deleteProduct(Long productId) {
+//        Product product = getProductById(productId);
+//        productRepository.delete(product);
+//    }
 
+//    public Product getProductById(Long productId) {
+//        return productRepository.findById(productId).orElseThrow(
+//                () -> new ProductNotFoundException("존재하지 않는 상품 입니다.")
+//        );
+//    }
     public Product getProductById(Long productId) {
         return productRepository.findById(productId).orElseThrow(
                 () -> new IllegalStateException("존재하지 않는 상품 입니다.")
