@@ -2,6 +2,7 @@ package com.managementSystem.global;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
@@ -18,7 +19,7 @@ public class ApiResponse<T> {
         return new ApiResponse<>("Success!", null, null);
     }
 
-    public static <T> ApiResponse<T> error(String message) {
+    public static <T> ApiResponse<T> error(HttpStatus badRequest, String message) {
         return new ApiResponse<>("Error!", message, null);
     }
 
