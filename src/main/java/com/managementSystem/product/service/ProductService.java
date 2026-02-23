@@ -1,13 +1,14 @@
-package com.mangementsystem.product.service;
+package com.managementSystem.product.service;
 
-import com.mangementsystem.admin.entity.Admin;
-import com.mangementsystem.admin.repository.AdminRepository;
-import com.mangementsystem.exception.product.ProductNotFoundException;
-import com.mangementsystem.product.dto.*;
-import com.mangementsystem.product.entity.Product;
-import com.mangementsystem.product.enums.Category;
-import com.mangementsystem.product.enums.Status;
-import com.mangementsystem.product.repository.ProductRepository;
+import com.managementSystem.admin.dto.SessionAdmin;
+import com.managementSystem.admin.entity.Admin;
+import com.managementSystem.admin.repository.AdminRepository;
+import com.managementSystem.admin.service.AdminService;
+import com.managementSystem.product.dto.*;
+import com.managementSystem.product.entity.Product;
+import com.managementSystem.product.enums.Category;
+import com.managementSystem.product.enums.Status;
+import com.managementSystem.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,22 +21,18 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final AdminRepository adminRepository;
+    private final AdminService adminService;
 
-//    @Transactional
-//    public ProductResponse createProduct(ProductRequest request) {
-//       Admin admin = adminRepository.findById(adminId).orElseThrow(
-//                () -> new IllegalStateException("권한이 없는 관리자 입니다.")
-//        );
-//        Product product = new Product(
-//                request.getProductName(), request.getCategory(), request.getPrice(), request.getStock(), request.getStatus());
-//        Product savedProduct = productRepository.save(product);
-//        return new ProductResponse(
-//                savedProduct.getId(),
-//                savedProduct.getProductName(),
-//                savedProduct.getCategory(),
-//                savedProduct.getPrice(),
-//        );
-//    }
+    @Transactional
+    public ProductResponse createProduct(SessionAdmin sessionAdmin,ProductRequest request) {
+       Admin admin = adminRepository.getAdminById(sessionAdmin.getId());
+
+
+        Product product = new Product(
+                request.getProductName(), request.getCategory(), request.getPrice(), request.getStock(), request.getStatus(),admin);
+        Product savedProduct = productRepository.save(product);
+        return new ProductResponse(savedProduct);
+    }
 
     @Transactional(readOnly = true)
     public Page<ProductResponse> getAllProducts(String productName, Category category, Status status, Pageable pageable){
@@ -117,7 +114,7 @@ public class ProductService {
         if (product.getStatus() == Status.DISCONTINUED){
             throw new IllegalStateException("단종된 상품입니다.");
         }
-        if (product.getStatus() == Status.SOLDOUT){
+        if (product.getStatus() == Status.SOLD_OUT){
             throw new IllegalStateException("품절된 상품입니다.");
         }
         if (product.getStock() < quantity){
@@ -138,17 +135,12 @@ public class ProductService {
         return new ProductResponse(product);
     }
 
-//    @Transactional
-//    public void deleteProduct(Long productId) {
-//        Product product = getProductById(productId);
-//        productRepository.delete(product);
-//    }
+    @Transactional
+    public void deleteProduct(Long productId) {
+        Product product = getProductById(productId);
+        productRepository.delete(product);
+    }
 
-//    public Product getProductById(Long productId) {
-//        return productRepository.findById(productId).orElseThrow(
-//                () -> new ProductNotFoundException("존재하지 않는 상품 입니다.")
-//        );
-//    }
     public Product getProductById(Long productId) {
         return productRepository.findById(productId).orElseThrow(
                 () -> new IllegalStateException("존재하지 않는 상품 입니다.")

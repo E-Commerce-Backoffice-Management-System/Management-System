@@ -7,8 +7,8 @@ import lombok.Getter;
 @Getter
 public enum Status {
 
-    ONSALE("판매중"),
-    SOLDOUT("품절"),
+    ON_SALE("판매중"),
+    SOLD_OUT("품절"),
     DISCONTINUED("단종");
 
     private final String status;

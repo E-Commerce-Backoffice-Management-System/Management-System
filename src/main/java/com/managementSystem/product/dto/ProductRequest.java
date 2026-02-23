@@ -1,5 +1,6 @@
 package com.managementSystem.product.dto;
 
+import com.managementSystem.admin.entity.Admin;
 import com.managementSystem.product.enums.Category;
 import com.managementSystem.product.enums.Status;
 import jakarta.validation.constraints.Min;

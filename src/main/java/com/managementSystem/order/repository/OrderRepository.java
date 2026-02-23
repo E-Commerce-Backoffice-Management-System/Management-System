@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 public class OrderRepository {
     public interface OrderRepository extends JpaRepository<Order, Long> {
         @Query("""
-        SELECT new com.mangementsystem.order.dto.OrderListResponse(
+        SELECT new com.managementSystem.order.dto.OrderListResponse(
             o.id,
             o.orderNumber,
             c.name,

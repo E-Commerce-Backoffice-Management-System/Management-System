@@ -39,13 +39,13 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "adminId", nullable = false)
     private Admin admin;
 
-    public Product(String productName, Category category, int price, int stock, Status status) {
+    public Product(String productName, Category category, int price, int stock, Status status,Admin admin) {
         this.productName = productName;
         this.category = category;
         this.price = price;
         this.stock = stock;
         this.status = status;
-//        this.admin = admin;
+        this.admin = admin;
     }
 
     public void updateProduct(String productName, Category category, int price) {
@@ -61,10 +61,10 @@ public class Product extends BaseEntity {
     public void updateProductStockAndStatus(int stock) {
         if (this.stock <= 0) {
             this.stock = 0;
-            this.status = Status.SOLDOUT;
+            this.status = Status.SOLD_OUT;
         } else {
             this.stock = stock;
-            this.status = Status.ONSALE;
+            this.status = Status.ON_SALE;
         }
     }
     public void updateProductStatus(Status status) {
