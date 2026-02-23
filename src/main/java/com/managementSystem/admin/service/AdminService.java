@@ -52,6 +52,7 @@ public class AdminService {
     // 관리자 단건 조회
     @Transactional(readOnly = true)
     public AdminGetResponse getAdmin(Long adminId, SessionAdmin loginAdmin) {
+        System.out.println(loginAdmin.getRole());
         if (loginAdmin.getRole() != AdminRole.SUPER_ADMIN) {
             throw new AdminException(ErrorCode.NO_AUTHORITY);
         }
@@ -130,9 +131,6 @@ public class AdminService {
         boolean match = passwordEncoder.matches(request.getPassword(), admin.getPassword());
         if (!match) {
             throw new AdminException(ErrorCode.MISTAKE_PASSWORD);
-        }
-        if(admin.getRole() != AdminRole.SUPER_ADMIN) {
-            throw new AdminException(ErrorCode.NO_AUTHORITY);
         }
         if (admin.getStatus().equals(AdminStatus.PENDING)) {
             throw new AdminException(ErrorCode.PENDING_ADMIN);
@@ -232,7 +230,7 @@ public class AdminService {
 
     // 내 프로필 조회 (단건 조회, 본인이 맞는지 확인)
     @Transactional(readOnly = true)
-    public AdminGetOneProfileResponse getAdminProfile(Long adminId, SessionAdmin loginAdmin) {
+    public AdminGetProfileResponse getAdminProfile(Long adminId, SessionAdmin loginAdmin) {
         if (!loginAdmin.getId().equals(adminId)) {
             throw new AdminException(ErrorCode.NO_AUTHORITY);
         }
@@ -240,7 +238,7 @@ public class AdminService {
                 () -> new AdminException(ErrorCode.USER_NOT_FOUND)
         );
 
-        return new AdminGetOneProfileResponse(
+        return new AdminGetProfileResponse(
                 admin.getName(),
                 admin.getEmail(),
                 admin.getPhoneNumber()

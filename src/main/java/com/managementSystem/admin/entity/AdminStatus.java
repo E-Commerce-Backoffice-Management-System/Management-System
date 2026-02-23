@@ -10,7 +10,8 @@ public enum AdminStatus {
     ACTIVE("ACTIVE", "활성화"),
     REJECTED("REJECTED", "거부"),
     SUSPENDED("SUSPENDED", "일시 정지"),
-    INACTIVE("INACTIVE", "비활성화");
+    INACTIVE("INACTIVE", "비활성화"),
+    APPROVED("APPROVE", "승인 완료");
 
     private final String key;
     private final String value;
