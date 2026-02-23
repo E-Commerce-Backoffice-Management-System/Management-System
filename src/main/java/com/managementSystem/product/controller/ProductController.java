@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
     private final ProductService productService;
 
+    // 포스트 매핑 어드민으로 수정 예정
 //    @PostMapping("/admin/{adminId}/products")
 //    public ResponseEntity<ProductResponse> createProduct(
 //            @PathVariable Long adminId, @Valid @RequestBody ProductRequest request) {
