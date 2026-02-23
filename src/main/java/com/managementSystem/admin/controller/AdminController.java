@@ -78,7 +78,7 @@ public class AdminController {
     }
 
     //관리자 정보 수정
-    @PostMapping("/admins/{adminId}/update")
+    @PutMapping("/admins/{adminId}/update")
     public ResponseEntity<ApiResponse<AdminUpdateResponse>>updateAdmin(
             @PathVariable Long adminId,
             @Valid @RequestBody AdminUpdateRequest request,
@@ -90,10 +90,14 @@ public class AdminController {
     // 모두 조회 페이징.
     @GetMapping("/admins")
     public ResponseEntity<ApiResponse<Page<AdminGetResponse>>> getAllAdmin(
+            @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(adminService.getAllAdmin(page, size)));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction
+    )
+     {
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(adminService.getAllAdmin(keyword, page, size, sortBy, direction)));
     }
 
     // 비밀번호 변경
