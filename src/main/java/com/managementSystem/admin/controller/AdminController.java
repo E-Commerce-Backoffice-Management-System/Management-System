@@ -2,6 +2,7 @@ package com.managementSystem.admin.controller;
 
 import com.managementSystem.admin.dto.*;
 import com.managementSystem.admin.service.AdminService;
+import com.managementSystem.global.dto.ApiResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,8 @@ public class AdminController {
 
     // 관리자 회원가입
     @PostMapping("/admin/signup")
-    public ResponseEntity<AdminSignupResponse> adminSignup(@Valid @RequestBody AdminSignupRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(adminService.save(request));
+    public ResponseEntity<ApiResponse<AdminSignupResponse>>adminSignup(@Valid @RequestBody AdminSignupRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(adminService.save(request)));
     }
 
     // 관리자 로그인
@@ -70,75 +71,75 @@ public class AdminController {
 
     // 관리자 단건 조회
     @GetMapping("/admins/{adminId}")
-    public ResponseEntity<AdminGetResponse> getAdmin(
+    public  ResponseEntity<ApiResponse<AdminGetResponse>> getAdmin(
             @PathVariable Long adminId,
             @SessionAttribute(name = "sessionAdmin") SessionAdmin loginAdmin) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.getAdmin(adminId, loginAdmin));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(adminService.getAdmin(adminId, loginAdmin)));
     }
 
     //관리자 정보 수정
-    @PutMapping("/admins/{adminId}/update")
-    public ResponseEntity<AdminUpdateResponse> updateAdmin(
+    @PostMapping("/admins/{adminId}/update")
+    public ResponseEntity<ApiResponse<AdminUpdateResponse>>updateAdmin(
             @PathVariable Long adminId,
             @Valid @RequestBody AdminUpdateRequest request,
             @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdmin(adminId, request, loginAdmin));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(adminService.updateAdmin(adminId, request, loginAdmin)));
     }
 
     // 모두 조회 페이징.
     @GetMapping("/admins")
-    public ResponseEntity<Page<AdminGetResponse>> getAllAdmin(
+    public ResponseEntity<ApiResponse<Page<AdminGetResponse>>> getAllAdmin(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.getAllAdmin(page, size));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(adminService.getAllAdmin(page, size)));
     }
 
     // 비밀번호 변경
     @PatchMapping("/admins/{adminId}/password")
-    public ResponseEntity<AdminUpdatePasswordResponse> updatePassword(
+    public ResponseEntity<ApiResponse<AdminUpdatePasswordResponse>>  updatePassword(
             @PathVariable Long adminId,
             @Valid @RequestBody AdminUpdatePasswordRequest request,
             @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminPassword(adminId, request, loginAdmin));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(adminService.updateAdminPassword(adminId, request, loginAdmin)));
     }
 
     // 관리자 역할 변경
     @PatchMapping("/admins/{adminId}/role")
-    public ResponseEntity<AdminRoleUpdateResponse> AdminRoleUpdate(
+    public ResponseEntity<ApiResponse<AdminRoleUpdateResponse>>AdminRoleUpdate(
             @PathVariable Long adminId,
             @RequestBody AdminRoleUpdateRequest request,
             @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateRole(adminId, request, loginAdmin));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(adminService.updateRole(adminId, request, loginAdmin)));
     }
 
     // 관리자 상태 변경
     @PatchMapping("/admins/{adminId}/status")
-    public ResponseEntity<AdminStatusUpdateResponse> AdminStatusUpdate(
+    public ResponseEntity<ApiResponse<AdminStatusUpdateResponse>>AdminStatusUpdate(
             @PathVariable Long adminId,
             @Valid @RequestBody AdminStatusUpdateRequest request,
             @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateStatus(adminId, request, loginAdmin));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(adminService.updateStatus(adminId, request, loginAdmin)));
     }
 
 
     // 내 프로필 조회 (관리자 개인 프로필 조회)
     @GetMapping("/admins/{adminId}/getProfile")
-    public ResponseEntity<AdminGetProfileResponse> getAdminProfile(
+    public ResponseEntity<ApiResponse<AdminGetProfileResponse>> getAdminProfile(
             @PathVariable Long adminId,
             @SessionAttribute(name = "sessionAdmin") SessionAdmin loginAdmin) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.getAdminProfile(adminId, loginAdmin));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(adminService.getAdminProfile(adminId, loginAdmin)));
     }
 
 
     // 내 프로필 수정(관리자 개인 프로필 수정)
     @PutMapping("/admins/{adminId}/updateProfile")
-    public ResponseEntity<AdminUpdateProfileResponse> updateProfile(
+    public ResponseEntity<ApiResponse<AdminUpdateProfileResponse>> updateProfile(
             @PathVariable Long adminId,
             @Valid @RequestBody AdminUpdateProfileRequest request,
             @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminProfile(adminId, request, loginAdmin));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(adminService.updateAdminProfile(adminId, request, loginAdmin)));
     }
 
     // 관리자 삭제
