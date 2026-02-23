@@ -4,7 +4,10 @@ import com.managementSystem.customer.dto.*;
 import com.managementSystem.customer.entity.Customer;
 import com.managementSystem.customer.entity.CustomerStatus;
 import com.managementSystem.customer.repository.CustomerRepository;
+import com.managementSystem.exception.CustomerException;
+import com.managementSystem.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.web.error.Error;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -50,7 +53,7 @@ public class CustomerService {
     @Transactional(readOnly = true)
     public GetCustomerResponse findOne(Long customerId) {
         Customer customer = customerRepository.findById(customerId).orElseThrow(
-                () -> new IllegalStateException("없는 고객입니다.")
+                () -> new CustomerException(ErrorCode.CUSTOMER_NOT_FOUND)
         );
         return new GetCustomerResponse(
                 customer.getId(),
@@ -64,7 +67,7 @@ public class CustomerService {
     @Transactional
     public UpdateCustomerResponse update(Long customerId, UpdateCustomerRequest request) {
         Customer customer = customerRepository.findById(customerId).orElseThrow(
-                () -> new IllegalStateException("없는 고객입니다.")
+                () -> new CustomerException(ErrorCode.CUSTOMER_NOT_FOUND)
         );
         customer.updateInfo(
                 request.getName(),
@@ -81,7 +84,9 @@ public class CustomerService {
     @Transactional
     public void updateStatus(Long customerId, CustomerStatus status) {
         Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new IllegalStateException("없는 고객입니다."));
+                .orElseThrow(
+                        () -> new CustomerException(ErrorCode.CUSTOMER_NOT_FOUND)
+                );
 
         customer.updateStatus(status);
     }
@@ -89,7 +94,9 @@ public class CustomerService {
     @Transactional
     public void delete(Long customerId) {
         Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new IllegalStateException("없는 고객입니다."));
+                .orElseThrow(
+                        () -> new CustomerException(ErrorCode.CUSTOMER_NOT_FOUND)
+                );
 
         customer.delete();
     }
