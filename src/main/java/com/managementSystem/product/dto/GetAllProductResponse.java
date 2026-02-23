@@ -3,30 +3,29 @@ package com.managementSystem.product.dto;
 import com.managementSystem.product.entity.Product;
 import com.managementSystem.product.enums.Category;
 import com.managementSystem.product.enums.Status;
-import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-
-public record GetOneProductResponse(
-        Long id,
-        String name,
-        Category category,
-        Long price,
-        int stock,
-        Status status,
-        LocalDateTime createdAt
-        //등록 관리자 이메일
+public record GetAllProductResponse (
+            Long id,
+            String name,
+            Category category,
+            Long price,
+            int stock,
+            Status status,
+            LocalDateTime createdAt,
+            String adminName
 ) {
-    public static GetOneProductResponse from(Product product) {
-        return new GetOneProductResponse(
+    public static GetAllProductResponse from(Product product){
+        return new GetAllProductResponse(
                 product.getId(),
                 product.getName(),
                 product.getCategory(),
                 product.getPrice(),
                 product.getStock(),
                 product.getStatus(),
-                product.getCreatedAt()
+                product.getCreatedAt(),
+                product.getCreatedBy().getName()
         );
     }
 }

@@ -2,6 +2,7 @@ package com.managementSystem.order.entity;
 
 import com.managementSystem.admin.entity.Admin;
 import com.managementSystem.customer.entity.Customer;
+import com.managementSystem.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
