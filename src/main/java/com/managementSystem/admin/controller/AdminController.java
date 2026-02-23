@@ -77,7 +77,7 @@ public class AdminController {
     }
 
     //관리자 정보 수정
-    @PostMapping("/admins/{adminId}/update")
+    @PutMapping("/admins/{adminId}/update")
     public ResponseEntity<AdminUpdateResponse> updateAdmin(
             @PathVariable Long adminId,
             @Valid @RequestBody AdminUpdateRequest request,
@@ -124,8 +124,8 @@ public class AdminController {
 
 
     // 내 프로필 조회 (관리자 개인 프로필 조회)
-    @GetMapping("/admins/{adminId}/profile")
-    public ResponseEntity<AdminGetOneProfileResponse> getAdminProfile(
+    @GetMapping("/admins/{adminId}/getProfile")
+    public ResponseEntity<AdminGetProfileResponse> getAdminProfile(
             @PathVariable Long adminId,
             @SessionAttribute(name = "sessionAdmin") SessionAdmin loginAdmin) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.getAdminProfile(adminId, loginAdmin));
@@ -133,7 +133,7 @@ public class AdminController {
 
 
     // 내 프로필 수정(관리자 개인 프로필 수정)
-    @PutMapping("/admins/{adminId}/profile")
+    @PutMapping("/admins/{adminId}/updateProfile")
     public ResponseEntity<AdminUpdateProfileResponse> updateProfile(
             @PathVariable Long adminId,
             @Valid @RequestBody AdminUpdateProfileRequest request,
