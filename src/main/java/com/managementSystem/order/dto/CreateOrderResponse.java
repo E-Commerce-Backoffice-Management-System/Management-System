@@ -1,5 +1,6 @@
 package com.managementSystem.order.dto;
 
+import com.managementSystem.order.entity.Order;
 import lombok.Getter;
 
 import java.time.LocalDate;
