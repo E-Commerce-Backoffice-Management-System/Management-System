@@ -73,5 +73,3 @@ public class Order {
         this.cancelReason = reason;
     }
 }
-
-

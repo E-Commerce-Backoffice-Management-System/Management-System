@@ -21,11 +21,10 @@ public class CreateOrderResponse {
         this.id = order.getId();
         this.orderNumber = order.getOrderNumber();
         this.customerName = order.getCustomer().getName();
-        this.productName = order.getProduct().getName();
+        this.productName = order.getProduct().getProductName();
         this.quantity = order.getQuantity();
         this.totalPrice = order.getTotalPrice();
         this.orderDate = order.getOrderDate();
         this.status = order.getStatus().name();
     }
 }
-
