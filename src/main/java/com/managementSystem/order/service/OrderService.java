@@ -8,10 +8,7 @@ import com.managementSystem.customer.entity.Customer;
 import com.managementSystem.customer.repository.CustomerRepository;
 import com.managementSystem.exception.AdminException;
 import com.managementSystem.exception.ErrorCode;
-import com.managementSystem.order.dto.CreateOrderRequest;
-import com.managementSystem.order.dto.CreateOrderResponse;
-import com.managementSystem.order.dto.GetOrderDetailResponse;
-import com.managementSystem.order.dto.GetOrderListResponse;
+import com.managementSystem.order.dto.*;
 import com.managementSystem.order.entity.Order;
 import com.managementSystem.order.entity.OrderStatus;
 import com.managementSystem.order.repository.OrderRepository;
@@ -68,20 +65,23 @@ public class OrderService {
 
         return new CreateOrderResponse(savedOrder);
     }
-
+    //주문 리스트 조회
     @Transactional(readOnly = true)
     public Page<GetOrderListResponse> getOrderList(String keyword, OrderStatus status, Pageable pageable) {
         Page<Order> orderPage;
-
+        // 키워드가 없으면 전체 조회
         if (keyword == null || keyword.isBlank()) {
             orderPage = orderRepository.findAllByStatus(status, pageable);
         } else if (keyword.startsWith("ORD")) {
+            // 주문번호로 조회
             orderPage = orderRepository.findAllByOrderNumberContainingAndStatus(keyword, status, pageable);
         } else {
+            // 고객명으로 조회
             orderPage = orderRepository.findAllByCustomerNameContainingAndStatus(keyword, status, pageable);
         }
         return orderPage.map(GetOrderListResponse::from);
     }
+
     @Transactional(readOnly = true)
     public GetOrderDetailResponse getOrderDetail(Long orderId) {
         //존재하지 않는 ID 요청 시 에러 반환
@@ -89,5 +89,37 @@ public class OrderService {
                 () -> new IllegalArgumentException("존재하지 않는 주문 ID입니다: " + orderId)
         );
         return GetOrderDetailResponse.from(order);
+    }
+
+    // 주문 취소
+    @Transactional
+    public CancelOrderResponse cancelOrder(Long id, CancelOrderRequest request) {
+        // 주문 데이터 존재 확인
+        Order order = orderRepository.findById(id).orElseThrow(
+                () -> new IllegalStateException()
+        );
+
+        // 준비중 상태에서만 주문 취소 가능
+        if (order.getStatus() != OrderStatus.PREPARING) {
+            throw new IllegalStateException();
+        }
+
+        // 상품 조회
+        Product product = order.getProduct();
+
+        // 상품이 삭제되지 않았을 때만 재고 복구
+        if(!product.isDeleted()) {
+            //재고 복수
+            int restoreQuantity = order.getQuantity();
+            product.increaseStock(restoreQuantity);
+
+            // 상품 상태 전환
+            if (product.getStatus() != Status.DISCONTINUED) {
+                product.updateStatusByStock();
+            }
+        }
+
+        order.cancel(OrderStatus.CANCELLED, request.cancelReason());
+        return CancelOrderResponse.from(order.getOrderNumber());
     }
 }

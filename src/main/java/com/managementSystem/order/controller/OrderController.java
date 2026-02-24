@@ -22,8 +22,9 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
 
     private final OrderService orderService;
-
+    // 주문 생성 (CS 주문)
     @PostMapping("/admins/orders")
+
     public ResponseEntity<CreateOrderResponse> createAdminOrder(
             @RequestBody CreateOrderRequest request,
             @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin
@@ -38,9 +39,10 @@ public class OrderController {
     public ResponseEntity<CreateOrderResponse> createCustomerOrder(
             @RequestBody CreateOrderRequest request
     ){
+        // 고객 직접 주문이므로 Admin 파라미터는 null로 전달
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(request, null));
     }
-
+    //[관리자 전용] 주문 목록 조회 (페이징/키워드검색)
     @GetMapping("/admins/orders")
     public ResponseEntity<Page<GetOrderListResponse>> getOrderList(
             @RequestParam(required = false) String keyword,
@@ -50,7 +52,8 @@ public class OrderController {
         Page<GetOrderListResponse> response = orderService.getOrderList(keyword, status, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-    @GetMapping("/admins/orders/{orderId}")
+    // 주문 상세 정보 조회(고객)
+    @GetMapping("/customers/orders/{orderId}")
     public ResponseEntity<GetOrderDetailResponse> getOrderDetail(
             @PathVariable Long orderId
     ){
@@ -60,12 +63,12 @@ public class OrderController {
 
 
     // 주문 취소
-//    @PatchMapping("/orders/{id}/camcel")
-//    public ResponseEntity<ApiResponse<CancelOrderResponse>> cancelOrder(
-//            @PathVariable Long id,
-//            @Valid @RequestBody CancelOrderRequest request
-//    ) {
-//        return ResponseEntity.status(HttpStatus.OK).body(
-//                ApiResponse.success(orderService.cancelOrder(id,request)));
-//    }
+    @PatchMapping("/orders/{id}/camcel")
+    public ResponseEntity<ApiResponse<CancelOrderResponse>> cancelOrder(
+            @PathVariable Long id,
+            @Valid @RequestBody CancelOrderRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(orderService.cancelOrder(id,request)));
+    }
 }

@@ -23,6 +23,10 @@ public class CustomerService {
 
     @Transactional
     public CreateCustomerResponse save(CreateCustomerRequest request) {
+        // 중복 체크
+        if (customerRepository.existsByEmail(request.getEmail())){
+            throw new IllegalStateException("이미 존재하는 고객 입니다.");
+        }
         Customer customer = new Customer(request.getName(), request.getEmail(), request.getPhoneNumber());
         Customer savedCustomer = customerRepository.save(customer);
         return new CreateCustomerResponse(
