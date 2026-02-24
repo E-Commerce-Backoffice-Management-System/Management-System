@@ -3,7 +3,6 @@ package com.managementSystem.product.dto;
 import com.managementSystem.product.entity.Product;
 import com.managementSystem.product.enums.Category;
 import com.managementSystem.product.enums.Status;
-import lombok.Getter;
 
 import java.time.LocalDateTime;
 

@@ -60,7 +60,7 @@ public class Product extends BaseEntity {
         this.createdBy = createdBy;
     }
 
-    //상품 수정
+    //상품 정보 수정
     public void updateProduct(String name, Category category, Long price){
         this.name = name;
         this.category = category;
