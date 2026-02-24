@@ -23,7 +23,12 @@ public enum ErrorCode {
     CUSTOMER_NOT_FOUND(HttpStatus.NOT_FOUND, "C001", "해당 고객을 찾을 수 없습니다."),
 
     // Product 에러 처리
-    Product_NOT_FOUND(HttpStatus.NOT_FOUND, "P001", "해당 상품을 찾을 수 없습니다."),
+    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "P001", "해당 상품을 찾을 수 없습니다."),
+    PRODUCT_DISCONTINUED(HttpStatus.BAD_REQUEST, "P002", "단종된 상품입니다."),
+    PRODUCT_SOLD_OUT(HttpStatus.BAD_REQUEST, "P003", "품절된 상품입니다."),
+    INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "P004", "재고가 부족합니다."),
+    INVALID_STOCK_QUANTITY(HttpStatus.BAD_REQUEST, "P005", "잘못된 재고 입력입니다."),
+
 
 
     // 공통 에러 (C로 시작)

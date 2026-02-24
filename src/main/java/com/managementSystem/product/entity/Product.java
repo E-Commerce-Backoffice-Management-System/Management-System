@@ -1,6 +1,9 @@
 package com.managementSystem.product.entity;
 
+
 import com.managementSystem.admin.entity.Admin;
+import com.managementSystem.exception.ErrorCode;
+import com.managementSystem.exception.ProductException;
 import com.managementSystem.global.BaseEntity;
 import com.managementSystem.product.enums.Category;
 import com.managementSystem.product.enums.Status;
@@ -40,15 +43,9 @@ public class Product extends BaseEntity {
     @Column(nullable = false, length = 30)
     private Status status;
 
-    //재고 변경 및 상태 자동 갱신
-    public void updateStock(int newStock) {
-        this.stock = newStock;
-        updateStatusByStock();
-    }
-
     // 등록 관리자명(단방향)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "created_admin_id", nullable = false)
+    @JoinColumn(name = "adminId", nullable = false)
     private Admin createdBy;
 
     @Builder
@@ -68,11 +65,45 @@ public class Product extends BaseEntity {
         this.price = price;
     }
 
+    //재고 변경 및 상태 자동 갱신
+    public void updateStock(int newStock) {
+        if (this.status == Status.DISCONTINUED) {
+            throw new ProductException(ErrorCode.PRODUCT_DISCONTINUED);
+        }
+        if (newStock < 0) {
+            throw new ProductException(ErrorCode.INVALID_STOCK_QUANTITY);
+        }
+        this.stock = newStock;
+        updateStatusByStock();
+    }
+    //재고 증가
     public void increaseStock(int quantity) {
+        if (this.status == Status.DISCONTINUED) {
+            throw new ProductException(ErrorCode.PRODUCT_DISCONTINUED);
+        }
+        if (quantity <= 0) {
+            throw new ProductException(ErrorCode.INVALID_STOCK_QUANTITY);
+        }
         this.stock += quantity;
         updateStatusByStock();
     }
-
+    //재고 감소
+    public void decreaseStock(int quantity) {
+        if (this.status == Status.DISCONTINUED) {
+            throw new ProductException(ErrorCode.PRODUCT_DISCONTINUED);
+        }
+        // 감소요청이 0보다 작거나 같을 경우 예외처리(증감수량은 1이상이어야해)
+        if (quantity <= 0) {
+            throw new ProductException(ErrorCode.INVALID_STOCK_QUANTITY);
+        }
+        // 재고보다 감소 요청이 더 많을 경우 예외처리
+        if (this.stock - quantity < 0) {
+            throw new ProductException(ErrorCode.INSUFFICIENT_STOCK);
+        }
+        this.stock -= quantity;
+        updateStatusByStock();
+    }
+    //재고에 따른 상품 상태 변화
     public void updateStatusByStock() {
 
         if (this.status == Status.DISCONTINUED) {
