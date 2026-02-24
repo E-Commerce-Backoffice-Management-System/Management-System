@@ -54,7 +54,6 @@ public class AdminService {
     // 관리자 단건 조회
     @Transactional(readOnly = true)
     public AdminGetResponse getAdmin(Long adminId, SessionAdmin loginAdmin) {
-        System.out.println(loginAdmin.getRole());
         if (loginAdmin.getRole() != AdminRole.SUPER_ADMIN) {
             throw new AdminException(ErrorCode.NO_AUTHORITY);
         }
