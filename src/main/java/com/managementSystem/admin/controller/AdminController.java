@@ -19,12 +19,12 @@ public class AdminController {
     private final AdminService adminService;
 
     // 관리자 회원가입
-    @PostMapping("/admin/signup")
+    @PostMapping("/admins/signup")
     public ResponseEntity<ApiResponse<AdminSignupResponse>>adminSignup(@Valid @RequestBody AdminSignupRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(adminService.save(request)));
     }
 
-    // 관리자 로그인
+    // 통합 관리자 로그인
     @PostMapping("/admins/login")
     public ResponseEntity<Void> adminLogin(@Valid @RequestBody AdminLoginRequest request, HttpSession session) {
         SessionAdmin currentAdmin = (SessionAdmin) session.getAttribute("sessionAdmin");
@@ -57,7 +57,7 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    // 승인대기 상태의 관리자를 활성/거부 상태로 변경 (상태 통합 변경)
+    // 승인대기 상태의 관리자를 활성/거부 상태로 변경 (상태 통합 변경)      /// 승인 대기일때만 사용할 수 있다.
     @PatchMapping("/admins/{adminId}/adminStatus")
     public ResponseEntity<Void> updateStatus(
             @PathVariable Long adminId,
@@ -127,7 +127,7 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(adminService.updateRole(adminId, request, loginAdmin)));
     }
 
-    // 관리자 상태 변경
+    // 관리자 상태 변경  슈퍼 관리자가 한다.
     @PatchMapping("/admins/{adminId}/status")
     public ResponseEntity<ApiResponse<AdminStatusUpdateResponse>>AdminStatusUpdate(
             @PathVariable Long adminId,

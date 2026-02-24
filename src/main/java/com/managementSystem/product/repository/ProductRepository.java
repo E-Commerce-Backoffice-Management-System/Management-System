@@ -28,7 +28,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             Pageable pageable
     );
 
-    Long countByDeletedFalse();
-
-    Long countByStockLessThanEqualAndDeletedFalse(int i);
+//    Long countByDeletedFalse();
+//
+//    Long countByStockLessThanEqualAndDeletedFalse(int i);
 }

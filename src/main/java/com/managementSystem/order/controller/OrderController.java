@@ -1,6 +1,5 @@
 package com.managementSystem.order.controller;
 
-import com.managementSystem.admin.dto.SessionAdmin;
 import com.managementSystem.admin.entity.Admin;
 import com.managementSystem.global.dto.ApiResponse;
 import com.managementSystem.order.dto.*;
@@ -42,6 +41,8 @@ public class OrderController {
         // 고객 직접 주문이므로 Admin 파라미터는 null로 전달
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(request, null));
     }
+
+
     //[관리자 전용] 주문 목록 조회 (페이징/키워드검색)
     @GetMapping("/admins/orders")
     public ResponseEntity<Page<GetOrderListResponse>> getOrderList(
@@ -52,6 +53,7 @@ public class OrderController {
         Page<GetOrderListResponse> response = orderService.getOrderList(keyword, status, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
     // 주문 상세 정보 조회(고객)
     @GetMapping("/customers/orders/{orderId}")
     public ResponseEntity<GetOrderDetailResponse> getOrderDetail(
