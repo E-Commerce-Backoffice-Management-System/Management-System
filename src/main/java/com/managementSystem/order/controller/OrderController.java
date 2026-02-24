@@ -1,13 +1,12 @@
 package com.managementSystem.order.controller;
 
 import com.managementSystem.admin.entity.Admin;
-import com.managementSystem.order.dto.CreateOrderRequest;
-import com.managementSystem.order.dto.CreateOrderResponse;
-import com.managementSystem.order.dto.GetOrderDetailResponse;
-import com.managementSystem.order.dto.GetOrderListResponse;
+import com.managementSystem.global.dto.ApiResponse;
+import com.managementSystem.order.dto.*;
 import com.managementSystem.order.entity.OrderStatus;
 import com.managementSystem.order.service.OrderService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -59,4 +58,14 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+
+    // 주문 취소
+    @PatchMapping("/orders/{id}/camcel")
+    public ResponseEntity<ApiResponse<CancelOrderResponse>> cancelOrder(
+            @PathVariable Long id,
+            @Valid @RequestBody CancelOrderRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(orderService.cancelOrder(id,request)));
+    }
 }
