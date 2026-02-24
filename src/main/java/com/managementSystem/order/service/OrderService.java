@@ -3,10 +3,7 @@ package com.managementSystem.order.service;
 import com.managementSystem.admin.entity.Admin;
 import com.managementSystem.customer.entity.Customer;
 import com.managementSystem.customer.repository.CustomerRepository;
-import com.managementSystem.order.dto.CreateOrderRequest;
-import com.managementSystem.order.dto.CreateOrderResponse;
-import com.managementSystem.order.dto.GetOrderDetailResponse;
-import com.managementSystem.order.dto.GetOrderListResponse;
+import com.managementSystem.order.dto.*;
 import com.managementSystem.order.entity.Order;
 import com.managementSystem.order.entity.OrderStatus;
 import com.managementSystem.order.repository.OrderRepository;
@@ -67,6 +64,7 @@ public class OrderService {
         }
         return orderPage.map(GetOrderListResponse::from);
     }
+
     @Transactional(readOnly = true)
     public GetOrderDetailResponse getOrderDetail(Long orderId) {
         //존재하지 않는 ID 요청 시 에러 반환
@@ -74,5 +72,31 @@ public class OrderService {
                 () -> new IllegalArgumentException("존재하지 않는 주문 ID입니다: " + orderId)
         );
         return GetOrderDetailResponse.from(order);
+    }
+
+    // 주문 취소
+    @Transactional
+    public CancelOrderResponse cancelOrder(Long id, CancelOrderRequest request) {
+        Order order = orderRepository.findById(id).orElseThrow(
+                () -> new IllegalStateException()
+        );
+
+        if (order.getStatus() != OrderStatus.PREPARING) {
+            throw new IllegalStateException();
+        }
+
+        Product product = order.getProduct();
+
+        if(!product.isDeleted()) {
+            int restoreQuantity = order.getQuantity();
+            product.increaseStock(restoreQuantity);
+
+            if (product.getStatus() != Status.DISCONTINUED) {
+                product.updateStatusByStock();
+            }
+        }
+
+        order.cancel(OrderStatus.CANCELLED, request.cancelReason());
+        return CancelOrderResponse.from(order.getOrderNumber());
     }
 }
