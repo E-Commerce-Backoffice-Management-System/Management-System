@@ -2,9 +2,10 @@ package com.managementSystem.order.entity;
 
 import com.managementSystem.admin.entity.Admin;
 import com.managementSystem.customer.entity.Customer;
-import com.managementSystem.product.entity.Product;
+import com.managementSystem.product.entity.Product; // 이제 정상 임포트 가능!
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -55,9 +56,10 @@ public class Order {
 
     private String cancelReason;
 
+    @Builder
     public Order(Customer customer, Product product, Admin admin, int quantity) {
         validateQuantity(quantity);
-        product.decreaseStock(quantity);
+        product.updateStock(quantity); // 팀원이 만든 Product 메서드 호출
 
         this.orderNumber = "ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         this.customer = customer;
@@ -107,5 +109,4 @@ public class Order {
         //취소 상품 ->  재고 복구
         this.product.increaseStock(this.quantity);
     }
-
 }
