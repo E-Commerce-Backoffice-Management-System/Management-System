@@ -3,10 +3,7 @@ package com.managementSystem.order.service;
 import com.managementSystem.admin.entity.Admin;
 import com.managementSystem.customer.entity.Customer;
 import com.managementSystem.customer.repository.CustomerRepository;
-import com.managementSystem.order.dto.CreateOrderRequest;
-import com.managementSystem.order.dto.CreateOrderResponse;
-import com.managementSystem.order.dto.GetOrderDetailResponse;
-import com.managementSystem.order.dto.GetOrderListResponse;
+import com.managementSystem.order.dto.*;
 import com.managementSystem.order.entity.Order;
 import com.managementSystem.order.entity.OrderStatus;
 import com.managementSystem.order.repository.OrderRepository;
@@ -67,6 +64,7 @@ public class OrderService {
         }
         return orderPage.map(GetOrderListResponse::from);
     }
+
     @Transactional(readOnly = true)
     public GetOrderDetailResponse getOrderDetail(Long orderId) {
         //존재하지 않는 ID 요청 시 에러 반환
@@ -74,5 +72,37 @@ public class OrderService {
                 () -> new IllegalArgumentException("존재하지 않는 주문 ID입니다: " + orderId)
         );
         return GetOrderDetailResponse.from(order);
+    }
+
+    // 주문 취소
+    @Transactional
+    public CancelOrderResponse cancelOrder(Long id, CancelOrderRequest request) {
+        // 주문 데이터 존재 확인
+        Order order = orderRepository.findById(id).orElseThrow(
+                () -> new IllegalStateException()
+        );
+
+        // 준비중 상태에서만 주문 취소 가능
+        if (order.getStatus() != OrderStatus.PREPARING) {
+            throw new IllegalStateException();
+        }
+
+        // 상품 조회
+        Product product = order.getProduct();
+
+        // 상품이 삭제되지 않았을 때만 재고 복구
+        if(!product.isDeleted()) {
+            //재고 복수
+            int restoreQuantity = order.getQuantity();
+            product.increaseStock(restoreQuantity);
+
+            // 상품 상태 전환
+            if (product.getStatus() != Status.DISCONTINUED) {
+                product.updateStatusByStock();
+            }
+        }
+
+        order.cancel(OrderStatus.CANCELLED, request.cancelReason());
+        return CancelOrderResponse.from(order.getOrderNumber());
     }
 }

@@ -95,7 +95,7 @@ public class Order {
         this.status = newStatus;
     }
     //주문 취소
-    public void cancel(String reason) {
+    public void cancel(OrderStatus status, String reason) {
         //준비중 상태에서만 취소 가능
         if (this.status != OrderStatus.PREPARING) {
             throw new IllegalStateException("주문취소는 준비중 상태에서만 허용합니다.");
