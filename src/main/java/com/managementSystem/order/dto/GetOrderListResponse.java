@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GetOrderResponse {
+public class GetOrderListResponse {
     private Long id;
     private String orderNumber;
     private String customerName;
@@ -22,8 +22,8 @@ public class GetOrderResponse {
     private String status;
     private String adminName;
 
-    public static GetOrderResponse from(Order order) {
-        return GetOrderResponse.builder()
+    public static GetOrderListResponse from(Order order) {
+        return GetOrderListResponse.builder()
                 .id(order.getId())
                 .orderNumber(order.getOrderNumber())
                 .customerName(order.getCustomer().getName())
