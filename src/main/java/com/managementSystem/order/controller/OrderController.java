@@ -1,5 +1,6 @@
 package com.managementSystem.order.controller;
 
+import com.managementSystem.admin.dto.SessionAdmin;
 import com.managementSystem.admin.entity.Admin;
 import com.managementSystem.global.dto.ApiResponse;
 import com.managementSystem.order.dto.*;
@@ -23,19 +24,17 @@ public class OrderController {
     private final OrderService orderService;
     // 주문 생성 (CS 주문)
     @PostMapping("/admins/orders")
+
     public ResponseEntity<CreateOrderResponse> createAdminOrder(
             @RequestBody CreateOrderRequest request,
-            HttpSession session
+            @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin
     ){
-        // 세션에서 로그인된 관리자 객체 추출
-        Admin loginAdmin = (Admin) session.getAttribute("loginAdmin");
-        // 인증되지 않은 사용자가 접근 시 401 Unauthorized 반환
         if(loginAdmin == null){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(request, loginAdmin));
     }
-    // 주문 생성 (고객 직접 주문)
+
     @PostMapping("/customers/orders")
     public ResponseEntity<CreateOrderResponse> createCustomerOrder(
             @RequestBody CreateOrderRequest request

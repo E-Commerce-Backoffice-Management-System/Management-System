@@ -2,6 +2,8 @@ package com.managementSystem.admin.controller;
 
 import com.managementSystem.admin.dto.*;
 import com.managementSystem.admin.service.AdminService;
+import com.managementSystem.exception.AdminException;
+import com.managementSystem.exception.ErrorCode;
 import com.managementSystem.global.dto.ApiResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -25,6 +27,13 @@ public class AdminController {
     // 관리자 로그인
     @PostMapping("/admins/login")
     public ResponseEntity<Void> adminLogin(@Valid @RequestBody AdminLoginRequest request, HttpSession session) {
+        SessionAdmin currentAdmin = (SessionAdmin) session.getAttribute("sessionAdmin");
+
+        if (currentAdmin != null) {
+            if(currentAdmin.getEmail().equals(request.getEmail())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+        }
         SessionAdmin sessionAdmin = adminService.login(request);
         session.setAttribute("sessionAdmin", sessionAdmin);
         return ResponseEntity.status(HttpStatus.OK).build();

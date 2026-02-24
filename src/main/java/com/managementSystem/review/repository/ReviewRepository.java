@@ -1,6 +1,6 @@
 package com.managementSystem.review.repository;
 
-import com.managementSystem.admin.entity.Admin;
+import com.managementSystem.product.entity.Product;
 import com.managementSystem.review.entity.Review;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

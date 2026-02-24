@@ -17,6 +17,7 @@ public enum ErrorCode {
     INACTIVE_ADMIN(HttpStatus.FORBIDDEN,"A007" ,"비활성화 상태의 계정입니다."),
     REJECTED_ADMIN(HttpStatus.FORBIDDEN,"A008" ,"관리자에게 거부된 계정입니다."),
     SUSPENDED_ADMIN(HttpStatus.FORBIDDEN, "A009","정지된 계정입니다."),
+    ALREADY_LOGIN(HttpStatus.BAD_REQUEST, "A010", "이미 로그인된 계정입니다."),
 
 
     // Customer 에러 처리

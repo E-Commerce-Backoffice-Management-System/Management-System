@@ -24,7 +24,7 @@ public class Review extends BaseEntity {
     @Column(length = 100, nullable = false)
     private String content;
 
-    private boolean isDeleted;
+    private boolean isDeleted = false;
 
 //    @ManyToOne(fetch = FetchType.LAZY, optional = false)
 //    @JoinColumn(name = "admin_id", nullable = false)

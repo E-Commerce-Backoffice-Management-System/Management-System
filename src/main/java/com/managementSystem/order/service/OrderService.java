@@ -1,8 +1,13 @@
 package com.managementSystem.order.service;
 
+import com.managementSystem.admin.dto.SessionAdmin;
 import com.managementSystem.admin.entity.Admin;
+import com.managementSystem.admin.entity.AdminStatus;
+import com.managementSystem.admin.repository.AdminRepository;
 import com.managementSystem.customer.entity.Customer;
 import com.managementSystem.customer.repository.CustomerRepository;
+import com.managementSystem.exception.AdminException;
+import com.managementSystem.exception.ErrorCode;
 import com.managementSystem.order.dto.*;
 import com.managementSystem.order.entity.Order;
 import com.managementSystem.order.entity.OrderStatus;
@@ -20,15 +25,25 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class OrderService {
 
+    private final AdminRepository adminRepository;
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
 
     // 주문 생성 (CS 주문 or 고객 직접 주문)
     @Transactional
-    public CreateOrderResponse createOrder(CreateOrderRequest request, Admin loginAdmin) {
+    public CreateOrderResponse createOrder(CreateOrderRequest request, SessionAdmin sessionAdmin) {
+        Admin admin = null;
+        if (sessionAdmin != null) {
+            admin = adminRepository.findById(sessionAdmin.getId()).orElseThrow(
+                    () -> new AdminException(ErrorCode.USER_NOT_FOUND)
+            );
+        }
+        if (admin.getStatus() != AdminStatus.APPROVED) {
+            throw new AdminException(ErrorCode.NO_AUTHORITY);
+        }
         // 최소 주문 수량 검증
-        if (request.getQuantity() < 1){
+        if (request.getQuantity() <= 1){
             throw new IllegalArgumentException("수량은 1 이상이어야 합니다.");
         }
         // 관련 고객 및 상품 존재 여부 확인
@@ -45,7 +60,7 @@ public class OrderService {
             throw new IllegalArgumentException("품절되었거나 재고가 부족합니다.");
         }
         // 주문 생성 및 저장 (상품 내부 로직에서 재고 차감 발생)
-        Order order = new Order(customer, product, loginAdmin, request.getQuantity());
+        Order order = new Order(customer, product, admin, request.getQuantity());
         Order savedOrder = orderRepository.save(order);
 
         return new CreateOrderResponse(savedOrder);
