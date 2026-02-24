@@ -76,16 +76,17 @@ public class Order {
             throw new IllegalArgumentException("수량은 1 이상이어야 합니다.");
         }
     }
-//     주문 상태 변경 (준비중 -> 배송중 -> 배송완료)
+//    //주문 상태 변경 (준비중 -> 배송중 -> 배송완료)
 //    public void updateStatus(OrderStatus newStatus){
-//        배송 완료거나 취소된 주문은 수정 불가
+//        //배송 완료거나 취소된 주문은 수정 불가
 //        if (this.status == OrderStatus.COMPLETED && newStatus == OrderStatus.CANCELLED){
 //            throw new IllegalArgumentException("이미 완료되었거나 취소된 주문은 상태를 변경할 수 없습니다.");
 //        }
-//        준비중이거나
+//        //준비중이거나
 //        if (this.status == OrderStatus.PREPARING && newStatus != OrderStatus.SHIPPING){
 //            throw new IllegalArgumentException("준비중 상태에서는 배송중으로만 변경 가능합니다.");
 //        }
+//        //배송중이거나
 //        if (this.status == OrderStatus.SHIPPING && newStatus != OrderStatus.COMPLETED){
 //            throw new IllegalArgumentException("배송중 상태에서는 배송완료로만 변경 가능합니다.");
 //        }

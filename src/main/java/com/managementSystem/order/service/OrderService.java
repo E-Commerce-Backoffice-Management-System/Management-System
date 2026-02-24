@@ -111,7 +111,7 @@ public class OrderService {
 
         // 상품이 삭제되지 않았을 때만 재고 복구
         if(!product.isDeleted()) {
-            //재고 복수
+            //재고 복구
             int restoreQuantity = order.getQuantity();
             product.increaseStock(restoreQuantity);
 
