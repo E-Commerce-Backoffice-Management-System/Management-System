@@ -94,9 +94,9 @@ public class ProductService {
         );
 
         product.updateProduct(
-                request.getProductName(),
-                request.getCategory(),
-                request.getPrice()
+                request.name(),
+                request.category(),
+                request.price()
         );
 
         return UpdateProductResponse.from(product);

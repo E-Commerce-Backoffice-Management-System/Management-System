@@ -1,13 +1,8 @@
 package com.managementSystem.order.service;
 
-import com.managementSystem.admin.dto.SessionAdmin;
 import com.managementSystem.admin.entity.Admin;
-import com.managementSystem.admin.entity.AdminStatus;
-import com.managementSystem.admin.repository.AdminRepository;
 import com.managementSystem.customer.entity.Customer;
 import com.managementSystem.customer.repository.CustomerRepository;
-import com.managementSystem.exception.AdminException;
-import com.managementSystem.exception.ErrorCode;
 import com.managementSystem.order.dto.*;
 import com.managementSystem.order.entity.Order;
 import com.managementSystem.order.entity.OrderStatus;
@@ -25,10 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class OrderService {
 
-    private final AdminRepository adminRepository;
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
+    private final AdminRepository adminRepository;
 
     // 주문 생성 (CS 주문 or 고객 직접 주문)
     @Transactional
@@ -65,6 +60,8 @@ public class OrderService {
 
         return new CreateOrderResponse(savedOrder);
     }
+
+
     //주문 리스트 조회
     @Transactional(readOnly = true)
     public Page<GetOrderListResponse> getOrderList(String keyword, OrderStatus status, Pageable pageable) {
