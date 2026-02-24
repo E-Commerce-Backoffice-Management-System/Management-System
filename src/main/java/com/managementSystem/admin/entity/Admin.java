@@ -41,6 +41,8 @@ public class Admin extends BaseEntity {
     private LocalDateTime rejectedAt;
     private String rejectionReason;
 
+    private boolean isDeleted = false;
+
     // 일반 회원가입용 생성자 (회원가입 시 기본 상태 : 승인 대기)
     public Admin(String name, String email, String password, String phoneNumber, AdminRole role) {
         this.name = name;
@@ -112,6 +114,10 @@ public class Admin extends BaseEntity {
 
     public void AdminUpdatePassword(String password){
         this.password = password;
+    }
+
+    public void delete(boolean isDeleted) {
+        this.isDeleted = true;
     }
 
 }

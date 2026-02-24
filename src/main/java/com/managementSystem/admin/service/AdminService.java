@@ -6,12 +6,14 @@ import com.managementSystem.admin.entity.AdminRole;
 import com.managementSystem.admin.entity.AdminStatus;
 import com.managementSystem.admin.repository.AdminRepository;
 import com.managementSystem.config.PasswordEncoder;
+import com.managementSystem.customer.entity.Customer;
 import com.managementSystem.exception.AdminException;
 import com.managementSystem.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,7 +54,6 @@ public class AdminService {
     // 관리자 단건 조회
     @Transactional(readOnly = true)
     public AdminGetResponse getAdmin(Long adminId, SessionAdmin loginAdmin) {
-        System.out.println(loginAdmin.getRole());
         if (loginAdmin.getRole() != AdminRole.SUPER_ADMIN) {
             throw new AdminException(ErrorCode.NO_AUTHORITY);
         }
@@ -73,11 +74,12 @@ public class AdminService {
 
     // 관리자 전체 조회
     @Transactional(readOnly = true)
-    public Page<AdminGetResponse> getAllAdmin(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Admin> admins = adminRepository.findAll(pageable);
+    public Page<AdminGetResponse> getAllAdmin(String keyword, int page, int size, String sortBy, String direction) {
+        Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
+        Page<Admin> AdminPage = adminRepository.findByIsDeletedFalseAndNameContainingOrEmailContaining(keyword, keyword, pageable);
 
-        return admins.map(admin -> new AdminGetResponse(
+        return AdminPage.map(admin -> new AdminGetResponse(
                 admin.getId(),
                 admin.getName(),
                 admin.getEmail(),
@@ -90,7 +92,7 @@ public class AdminService {
     }
 
     // 괸리자 정보 수정 (슈퍼관리자 권한 확인 로직)
-    @Transactional(readOnly = true)
+    @Transactional
     public AdminUpdateResponse updateAdmin(Long adminId, AdminUpdateRequest request, SessionAdmin loginAdmin) {
         if (loginAdmin.getRole() != AdminRole.SUPER_ADMIN) {
             throw new AdminException(ErrorCode.NO_AUTHORITY);

@@ -30,6 +30,10 @@ public enum ErrorCode {
     INVALID_STOCK_QUANTITY(HttpStatus.BAD_REQUEST, "P005", "잘못된 재고 입력입니다."),
 
 
+    // Review 에러 처리
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "R001", "해당 리뷰를 찾을 수 없습니다."),
+    ALREADY_DELETED(HttpStatus.BAD_REQUEST, "R002", "이미 삭제된 리뷰 입니다."),
+
 
     // 공통 에러 (C로 시작)
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "C001", "잘못된 입력값입니다."),

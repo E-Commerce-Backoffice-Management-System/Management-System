@@ -3,8 +3,6 @@ package com.managementSystem.global.dto;
 import com.managementSystem.exception.ErrorResponse;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
-
 @Getter
 public class ApiResponse<T> {
 
@@ -27,6 +25,5 @@ public class ApiResponse<T> {
     public static ApiResponse<Void> fail(ErrorResponse error) {
         return new ApiResponse<>(false, null, error);
     }
-
 
 }
