@@ -13,4 +13,5 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
             Pageable pageable
     );
 
+    boolean existsByEmail(String email);
 }
