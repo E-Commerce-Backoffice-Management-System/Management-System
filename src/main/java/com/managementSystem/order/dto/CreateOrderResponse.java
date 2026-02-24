@@ -19,7 +19,7 @@ public class CreateOrderResponse {
         this.id = order.getId();
         this.orderNumber = order.getOrderNumber();
         this.customerName = order.getCustomer().getName();
-        this.productName = order.getProduct().getName(); // Product 엔티티 필드명 확인 필요
+        this.productName = order.getProduct().getName();
         this.quantity = order.getQuantity();
         this.totalPrice = order.getTotalPrice();
         this.orderDate = order.getOrderDate();
