@@ -1,5 +1,6 @@
 package com.managementSystem.order.entity;
 
+import com.managementSystem.admin.dto.SessionAdmin;
 import com.managementSystem.admin.entity.Admin;
 import com.managementSystem.customer.entity.Customer;
 import com.managementSystem.product.entity.Product; // 이제 정상 임포트 가능!

@@ -35,16 +35,16 @@ public class ReviewService {
 
     // 리뷰 생성
     @Transactional
-    public CreateReviewResponse save(Long customerId, CreateReviewRequest request){
+    public CreateReviewResponse save(Long customerId, Long productId, CreateReviewRequest request){
         Customer customer = customerRepository.findById(customerId).orElseThrow(
-                () -> new ReviewException(ErrorCode.CUSTOMER_NOT_FOUND.getMessage())
-        );
+                () -> new ReviewException(ErrorCode.CUSTOMER_NOT_FOUND.getMessage()));
         if(!customer.getId().equals(customerId)){
             throw new CustomerException(ErrorCode.NO_AUTHORITY);
         }
-        Product product = productRepository.findById(1L).orElseThrow(
-                () -> new ReviewException(ErrorCode.PRODUCT_NOT_FOUND.getMessage())
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new ProductException(ErrorCode.PRODUCT_NOT_FOUND)
         );
+
         Order order = orderRepository.findById(1L).orElseThrow(
                 () -> new OrderException(ErrorCode.INTERNAL_SERVER_ERROR.getMessage())
         );

@@ -19,12 +19,14 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     // 리뷰 생성
-    @PostMapping("/customers/{customerId}/reviews")
+    @PostMapping("/customers/{customerId}/products/{productId}/reviews")
+    // Session 로그인 시스템에서 userId나 user 정보를 받아서 매핑해주는것이
     public ResponseEntity<ApiResponse<CreateReviewResponse>> createReview(
             @PathVariable Long customerId,
+            @PathVariable Long productId, // 상품에 종속되는 것이 (customerId , productId)
             @RequestBody CreateReviewRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(reviewService.save(customerId, request)));
+                .body(ApiResponse.success(reviewService.save(customerId, productId, request)));
     }
 
     // 리뷰 리스트 조회

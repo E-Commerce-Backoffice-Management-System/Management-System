@@ -24,7 +24,7 @@ public class AdminService {
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // 로그인
+    // 회원가입
     @Transactional
     public AdminSignupResponse save(AdminSignupRequest request) {
         if (adminRepository.existsByEmail(request.getEmail())) {
@@ -130,10 +130,19 @@ public class AdminService {
         Admin admin = adminRepository.findByEmail(request.getEmail()).orElseThrow(
                 () -> new AdminException(ErrorCode.EMAIL_NOT_FOUND)
         );
-        boolean match = passwordEncoder.matches(request.getPassword(), admin.getPassword());
-        if (!match) {
+        if(!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
             throw new AdminException(ErrorCode.MISTAKE_PASSWORD);
         }
+        checkAdminStatus(admin);
+
+        return new SessionAdmin(
+                admin.getId(),
+                admin.getEmail(),
+                admin.getRole()
+        );
+    }
+
+    private void checkAdminStatus(Admin admin) {
         if (admin.getStatus().equals(AdminStatus.PENDING)) {
             throw new AdminException(ErrorCode.PENDING_ADMIN);
         }
@@ -146,11 +155,6 @@ public class AdminService {
         if (admin.getStatus().equals(AdminStatus.SUSPENDED)) {
             throw new AdminException(ErrorCode.SUSPENDED_ADMIN);
         }
-        return new SessionAdmin(
-                admin.getId(),
-                admin.getEmail(),
-                admin.getRole()
-        );
     }
 
     // 슈퍼관라자가 로그인 승인, 권한 확인
