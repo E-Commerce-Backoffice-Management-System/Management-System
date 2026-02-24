@@ -77,20 +77,26 @@ public class OrderService {
     // 주문 취소
     @Transactional
     public CancelOrderResponse cancelOrder(Long id, CancelOrderRequest request) {
+        // 주문 데이터 존재 확인
         Order order = orderRepository.findById(id).orElseThrow(
                 () -> new IllegalStateException()
         );
 
+        // 준비중 상태에서만 주문 취소 가능
         if (order.getStatus() != OrderStatus.PREPARING) {
             throw new IllegalStateException();
         }
 
+        // 상품 조회
         Product product = order.getProduct();
 
+        // 상품이 삭제되지 않았을 때만 재고 복구
         if(!product.isDeleted()) {
+            //재고 복수
             int restoreQuantity = order.getQuantity();
             product.increaseStock(restoreQuantity);
 
+            // 상품 상태 전환
             if (product.getStatus() != Status.DISCONTINUED) {
                 product.updateStatusByStock();
             }
