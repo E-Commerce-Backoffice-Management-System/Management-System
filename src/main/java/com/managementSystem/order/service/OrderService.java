@@ -50,16 +50,18 @@ public class OrderService {
 
         return new CreateOrderResponse(savedOrder);
     }
-
+    //주문 리스트 조회
     @Transactional(readOnly = true)
     public Page<GetOrderListResponse> getOrderList(String keyword, OrderStatus status, Pageable pageable) {
         Page<Order> orderPage;
-
+        // 키워드가 없으면 전체 조회
         if (keyword == null || keyword.isBlank()) {
             orderPage = orderRepository.findAllByStatus(status, pageable);
         } else if (keyword.startsWith("ORD")) {
+            // 주문번호로 조회
             orderPage = orderRepository.findAllByOrderNumberContainingAndStatus(keyword, status, pageable);
         } else {
+            // 고객명으로 조회
             orderPage = orderRepository.findAllByCustomerNameContainingAndStatus(keyword, status, pageable);
         }
         return orderPage.map(GetOrderListResponse::from);

@@ -17,19 +17,21 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @PostMapping("/customers")
-    public ResponseEntity<CreateCustomerResponse> createCustomer(@Valid @RequestBody CreateCustomerRequest request){
+    public ResponseEntity<CreateCustomerResponse> createCustomer(
+            @Valid @RequestBody CreateCustomerRequest request
+    ){
         return ResponseEntity.status(HttpStatus.CREATED).body(customerService.save(request));
     }
-//    @GetMapping("/customers")
-//    public ResponseEntity<Page<GetCustomerResponse>> getAll(
-//            @RequestParam(defaultValue = "") String keyword,
-//            @RequestParam(defaultValue = "1") int page,
-//            @RequestParam(defaultValue = "10") int size,
-//            @RequestParam(defaultValue = "createdAt") String sortBy,
-//            @RequestParam(defaultValue = "desc") String direction
-//            ){
-//        return ResponseEntity.status(HttpStatus.OK).body(customerService.findAll(keyword, page, size, sortBy, direction));
-//    }
+    @GetMapping("/customers")
+    public ResponseEntity<Page<GetCustomerResponse>> getAll(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction
+            ){
+        return ResponseEntity.status(HttpStatus.OK).body(customerService.findAll(keyword, page, size, sortBy, direction));
+    }
     @GetMapping("/customers/{customerId}")
     public ResponseEntity<GetCustomerResponse> getOne(@PathVariable Long customerId){
         return ResponseEntity.status(HttpStatus.OK).body(customerService.findOne(customerId));

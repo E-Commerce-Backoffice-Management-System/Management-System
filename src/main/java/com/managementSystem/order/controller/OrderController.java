@@ -21,27 +21,30 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
 
     private final OrderService orderService;
-
-    @PostMapping("/admin/orders")
+    // 주문 생성 (CS 주문)
+    @PostMapping("/admins/orders")
     public ResponseEntity<CreateOrderResponse> createAdminOrder(
             @RequestBody CreateOrderRequest request,
             HttpSession session
     ){
+        // 세션에서 로그인된 관리자 객체 추출
         Admin loginAdmin = (Admin) session.getAttribute("loginAdmin");
+        // 인증되지 않은 사용자가 접근 시 401 Unauthorized 반환
         if(loginAdmin == null){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(request, loginAdmin));
     }
-
-    @PostMapping("/customer/orders")
+    // 주문 생성 (고객 직접 주문)
+    @PostMapping("/customers/orders")
     public ResponseEntity<CreateOrderResponse> createCustomerOrder(
             @RequestBody CreateOrderRequest request
     ){
+        // 고객 직접 주문이므로 Admin 파라미터는 null로 전달
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(request, null));
     }
-
-    @GetMapping("/admin/orders")
+    //[관리자 전용] 주문 목록 조회 (페이징/키워드검색)
+    @GetMapping("/admins/orders")
     public ResponseEntity<Page<GetOrderListResponse>> getOrderList(
             @RequestParam(required = false) String keyword,
             @RequestParam OrderStatus status,
@@ -50,7 +53,8 @@ public class OrderController {
         Page<GetOrderListResponse> response = orderService.getOrderList(keyword, status, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-    @GetMapping("/admin/orders/{orderId}")
+    // 주문 상세 정보 조회(고객)
+    @GetMapping("/customers/orders/{orderId}")
     public ResponseEntity<GetOrderDetailResponse> getOrderDetail(
             @PathVariable Long orderId
     ){
