@@ -48,6 +48,8 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "adminId", nullable = false)
     private Admin createdBy;
 
+    private boolean deleted;
+
     @Builder
     public Product(String name, Category category, Long price, int stock, Status status, Admin createdBy) {
         this.name = name;

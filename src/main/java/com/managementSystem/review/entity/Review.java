@@ -1,9 +1,9 @@
 package com.managementSystem.review.entity;
 
-import com.managementSystem.admin.entity.Admin;
 import com.managementSystem.customer.entity.Customer;
 import com.managementSystem.global.BaseEntity;
 import com.managementSystem.order.entity.Order;
+import com.managementSystem.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,9 +30,9 @@ public class Review extends BaseEntity {
 //    @JoinColumn(name = "admin_id", nullable = false)
 //    private Admin admin;
 
-//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-//    @JoinColumn(name = "product_id", nullable = false)
-//    private Product product;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
@@ -42,9 +42,10 @@ public class Review extends BaseEntity {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    public Review(Integer rating, String content, Customer customer, Order order) {
+    public Review(Integer rating, String content, Product product, Customer customer, Order order) {
         this.rating = rating;
         this.content = content;
+        this.product = product;
         this.customer = customer;
         this.order = order;
     }

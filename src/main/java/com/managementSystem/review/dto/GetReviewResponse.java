@@ -1,6 +1,5 @@
 package com.managementSystem.review.dto;
 
-import com.managementSystem.customer.entity.Customer;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

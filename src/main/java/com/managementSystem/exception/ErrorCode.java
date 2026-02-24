@@ -31,7 +31,8 @@ public enum ErrorCode {
 
 
     // Review 에러 처리
-
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "R001", "해당 리뷰를 찾을 수 없습니다."),
+    ALREADY_DELETED(HttpStatus.BAD_REQUEST, "R002", "이미 삭제된 리뷰 입니다."),
 
 
     // 공통 에러 (C로 시작)
