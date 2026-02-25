@@ -7,9 +7,7 @@ import com.managementSystem.admin.entity.AdminStatus;
 import com.managementSystem.admin.repository.AdminRepository;
 import com.managementSystem.customer.entity.Customer;
 import com.managementSystem.customer.repository.CustomerRepository;
-import com.managementSystem.exception.AdminException;
-import com.managementSystem.exception.ErrorCode;
-import com.managementSystem.exception.OrderException;
+import com.managementSystem.exception.*;
 import com.managementSystem.order.dto.*;
 import com.managementSystem.order.entity.Order;
 import com.managementSystem.order.entity.OrderStatus;
@@ -61,16 +59,16 @@ public class OrderService {
         }
 
         Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 고객입니다."));
+                .orElseThrow(() -> new CustomerException(ErrorCode.CUSTOMER_NOT_FOUND));
 
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+                .orElseThrow(() -> new ProductException(ErrorCode.PRODUCT_NOT_FOUND));
 
         if (product.getStatus() == Status.DISCONTINUED) {
-            throw new IllegalArgumentException("단종된 상품입니다.");
+            throw new ProductException(ErrorCode.PRODUCT_DISCONTINUED);
         }
         if (product.getStatus() == Status.SOLD_OUT) {
-            throw new IllegalArgumentException("품절되었거나 재고가 부족합니다.");
+            throw new ProductException(ErrorCode.PRODUCT_SOLD_OUT);
         }
 
         // 주문 생성 및 저장
@@ -121,8 +119,8 @@ public class OrderService {
 
     // 주문 취소
     @Transactional
-    public CancelOrderResponse cancelOrder(Long id, CancelOrderRequest request) {
-        Order order = orderRepository.findById(id).orElseThrow(
+    public CancelOrderResponse cancelOrder(Long orderId, CancelOrderRequest request) {
+        Order order = orderRepository.findById(orderId).orElseThrow(
                 () -> new OrderException(ErrorCode.ORDER_NOT_FOUND));
 
         if (order.getStatus() != OrderStatus.PREPARING) {

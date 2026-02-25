@@ -1,7 +1,6 @@
 package com.managementSystem.order.controller;
 
 import com.managementSystem.admin.dto.SessionAdmin;
-import com.managementSystem.customer.dto.SessionCustomer;
 import com.managementSystem.global.dto.ApiResponse;
 import com.managementSystem.order.dto.*;
 import com.managementSystem.order.entity.OrderStatus;
@@ -9,6 +8,7 @@ import com.managementSystem.order.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -82,23 +82,33 @@ public class OrderController {
     @GetMapping("/admins/orders/{orderId}")
     public ResponseEntity<ApiResponse<GetOrderDetailResponse>> getOrderDetailAdmin(
             @PathVariable Long orderId,
-            @SessionAttribute(name = "loginAdmin", required = false) SessionAdmin loginAdmin
+            @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin sessionAdmin
     ) {
-        if (loginAdmin == null) {
+        if (sessionAdmin== null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        GetOrderDetailResponse response = orderService.getOrderDetailAdmin(orderId, loginAdmin);
+        GetOrderDetailResponse response = orderService.getOrderDetailAdmin(orderId, sessionAdmin);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }
 
     // 주문 취소
-    @PatchMapping("/orders/{id}/cancel")
+    @PatchMapping("/orders/{orderId}/cancel")
+    public ResponseEntity<ApiResponse<CancelOrderResponse>> cancelOrder(
+            @PathVariable Long orderId,
+            @Valid @RequestBody CancelOrderRequest request
+    ) {
+        CancelOrderResponse response = orderService.cancelOrder(orderId, request);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
+    }
+
+    // 주문 취소
+    @PatchMapping("/orders/{id}/camcel")
     public ResponseEntity<ApiResponse<CancelOrderResponse>> cancelOrder(
             @PathVariable Long id,
             @Valid @RequestBody CancelOrderRequest request
     ) {
-        CancelOrderResponse response = orderService.cancelOrder(id, request);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(orderService.cancelOrder(id,request)));
     }
 }
