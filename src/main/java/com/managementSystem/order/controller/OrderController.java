@@ -8,7 +8,6 @@ import com.managementSystem.order.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +22,13 @@ public class OrderController {
     @PostMapping("/admins/orders")
     public ResponseEntity<ApiResponse<CreateOrderResponse>> createAdminOrder(
             @RequestBody CreateOrderRequest request,
-            @SessionAttribute(name = "loginAdmin", required = false) SessionAdmin loginAdmin
+            @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin sessionAdmin
     ){
-        if(loginAdmin == null){
+        if(sessionAdmin == null){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         // 서비스 메서드명을 createAdminOrder로 호출해야 합니다.
-        CreateOrderResponse response = orderService.createAdminOrder(request, loginAdmin);
+        CreateOrderResponse response = orderService.createAdminOrder(request, sessionAdmin);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
     }
 
@@ -109,13 +108,13 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }
 
-    // 주문 취소
-    @PatchMapping("/orders/{id}/camcel")
-    public ResponseEntity<ApiResponse<CancelOrderResponse>> cancelOrder(
-            @PathVariable Long id,
-            @Valid @RequestBody CancelOrderRequest request
-    ) {
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.success(orderService.cancelOrder(id,request)));
-    }
+//    // 주문 취소
+//    @PatchMapping("/orders/{id}/camcel")
+//    public ResponseEntity<ApiResponse<CancelOrderResponse>> cancelOrder(
+//            @PathVariable Long id,
+//            @Valid @RequestBody CancelOrderRequest request
+//    ) {
+//        return ResponseEntity.status(HttpStatus.OK).body(
+//                ApiResponse.success(orderService.cancelOrder(id,request)));
+//    }
 }

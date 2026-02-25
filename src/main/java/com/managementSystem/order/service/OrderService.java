@@ -2,6 +2,7 @@ package com.managementSystem.order.service;
 
 import com.managementSystem.admin.dto.SessionAdmin;
 import com.managementSystem.admin.entity.Admin;
+import com.managementSystem.admin.entity.AdminRole;
 import com.managementSystem.admin.entity.AdminStatus;
 import com.managementSystem.admin.repository.AdminRepository;
 import com.managementSystem.customer.entity.Customer;
@@ -40,7 +41,7 @@ public class OrderService {
         Admin admin = adminRepository.findById(sessionAdmin.getId())
                 .orElseThrow(() -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND));
 
-        if (admin.getStatus() != AdminStatus.ACTIVE) {
+        if (admin.getStatus() != AdminStatus.ACTIVE && admin.getStatus() != AdminStatus.APPROVED &&admin.getRole()!= AdminRole.CS_ADMIN) {
             throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
 
@@ -114,7 +115,7 @@ public class OrderService {
         Admin admin = adminRepository.findById(sessionAdmin.getId())
                 .orElseThrow(() -> new AdminException(ErrorCode.ADMIN_NO_AUTHORITY));
 
-        if (admin.getStatus() != AdminStatus.ACTIVE) {
+        if (admin.getStatus() != AdminStatus.ACTIVE && admin.getStatus() != AdminStatus.APPROVED &&admin.getRole()!= AdminRole.CS_ADMIN) {
             throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
 

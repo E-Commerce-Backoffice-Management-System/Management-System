@@ -27,7 +27,7 @@ public class CustomerService {
     @Transactional
     public CustomerSignupResponse customerSignup(CustomerSignupRequest request) {
         if (customerRepository.existsByEmail(request.getEmail())) {
-            throw new CustomerException(ErrorCode.DUPLICATE_EMAIL);
+            throw new CustomerException(ErrorCode.CUSTOMER_DUPLICATE);
         }
         String encodedPassword = passwordEncoder.encode(request.getPassword());
         Customer customer = new Customer(
@@ -48,10 +48,10 @@ public class CustomerService {
     @Transactional(readOnly = true)
     public SessionCustomer customerLogin(CustomerLoginRequest request) {
         Customer customer = customerRepository.findByEmail(request.getEmail()).orElseThrow(
-                () -> new CustomerException(ErrorCode.EMAIL_NOT_FOUND)
+                () -> new CustomerException(ErrorCode.CUSTOMER_NOT_FOUND)
         );
         if (!passwordEncoder.matches(request.getPassword(), customer.getPassword())) {
-            throw new CustomerException(ErrorCode.MISTAKE_PASSWORD);
+            throw new CustomerException(ErrorCode.GLOBAL_MISTAKE_PASSWORD);
         }
         return new SessionCustomer(
                 customer.getId(),

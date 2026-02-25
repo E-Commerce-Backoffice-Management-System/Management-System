@@ -119,8 +119,9 @@ public class AdminService {
         Admin admin = adminRepository.findById(adminId).orElseThrow(
                 () -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND)
         );
-        // Soft Delete
-        admin.AdminStatusUpdate(AdminStatus.INACTIVE);
+//        Soft Delete
+//        admin.AdminStatusUpdate(AdminStatus.INACTIVE);
+        adminRepository.delete(admin);
 
     }
 
@@ -164,6 +165,7 @@ public class AdminService {
         if ((loginAdmin.getRole() != AdminRole.SUPER_ADMIN)) {
             throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
+
         Admin admin = adminRepository.findById(adminId).orElseThrow(
                 () -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND)
         );
@@ -184,13 +186,13 @@ public class AdminService {
         } else if (request.getStatus() == AdminStatus.REJECTED) {
             admin.reject(request.getRejectReason());
         } else {
-            throw new IllegalStateException("잘못된 상태 변경 요청입니다.");
+            throw new AdminException(ErrorCode.ADMIN_INVALID_STATUS);
         }
     }
 
     private SessionAdmin adminLogin(SessionAdmin admin) {
         if (admin == null) {
-            throw new IllegalStateException("로그인이 필요합니다.");
+            throw new AdminException(ErrorCode.ADMIN_LOGIN_IS_REQUIRED);
         }
         return admin;
     }
@@ -199,7 +201,7 @@ public class AdminService {
     private void UserLoginId(SessionAdmin admin, Long userId) {
         adminLogin(admin);
         if (!admin.getId().equals(userId)) {
-            throw new IllegalStateException("권한이 없습니다.");
+            throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
     }
 
@@ -280,6 +282,9 @@ public class AdminService {
         Admin admin = adminRepository.findById(adminId).orElseThrow(
                 () -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND)
         );
+        if(passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
+            throw new AdminException(ErrorCode.ADMIN_DUPLICATE_PASSWORD);
+        }
         String encodedPassword = passwordEncoder.encode(request.getPassword());
         admin.AdminUpdatePassword(encodedPassword);
         return new AdminUpdatePasswordResponse(
