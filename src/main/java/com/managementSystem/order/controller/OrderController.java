@@ -8,6 +8,7 @@ import com.managementSystem.order.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -77,11 +78,9 @@ public class OrderController {
     ){
         // 세션에서 로그인한 고객의 ID 꺼냄
         Long customerId = (Long) session.getAttribute("loginCustomer");
-
         if (customerId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
         GetOrderDetailResponse response = orderService.getOrderDetail(orderId, customerId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }

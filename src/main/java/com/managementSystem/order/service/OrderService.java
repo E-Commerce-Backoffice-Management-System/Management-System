@@ -112,7 +112,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public GetOrderDetailResponse getOrderDetailAdmin(Long orderId, SessionAdmin sessionAdmin) {
         Admin admin = adminRepository.findById(sessionAdmin.getId())
-                .orElseThrow(() -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND));
+                .orElseThrow(() -> new AdminException(ErrorCode.ADMIN_NO_AUTHORITY));
 
         if (admin.getStatus() != AdminStatus.ACTIVE) {
             throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
