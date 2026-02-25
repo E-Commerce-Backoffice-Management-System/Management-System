@@ -25,7 +25,7 @@ public class Customer extends BaseEntity {
     private String phoneNumber;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CustomerStatus status;
+    private CustomerStatus status = CustomerStatus.ACTIVE;
 
     private boolean isDeleted = false;
     private LocalDateTime deletedAt;
@@ -34,19 +34,19 @@ public class Customer extends BaseEntity {
     private String password;
 
     // 회원가입용 생성자
-    public Customer(String name, String email, String phoneNumber, String password) {
+    public Customer(String name, String email, String phoneNumber, String password, CustomerStatus status) {
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
-    }
-
-    public Customer(String name, String email, String phoneNumber){
-        this.name = name;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
         this.status = CustomerStatus.ACTIVE;
     }
+
+//    public Customer(String name, String email, String phoneNumber){
+//        this.name = name;
+//        this.email = email;
+//        this.phoneNumber = phoneNumber;
+//    }
 
     public void updateInfo(String name, String email, String phoneNumber){
         this.name = name;
