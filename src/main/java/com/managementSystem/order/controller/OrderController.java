@@ -25,43 +25,43 @@ public class OrderController {
     // 주문 생성 (CS 주문)
     @PostMapping("/admins/orders")
 
-    public ResponseEntity<CreateOrderResponse> createAdminOrder(
+    public ResponseEntity<ApiResponse<CreateOrderResponse>> createAdminOrder(
             @RequestBody CreateOrderRequest request,
             @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin
     ){
         if(loginAdmin == null){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(request, loginAdmin));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(orderService.createOrder(request, loginAdmin)));
     }
 
     @PostMapping("/customers/orders")
-    public ResponseEntity<CreateOrderResponse> createCustomerOrder(
+    public ResponseEntity<ApiResponse<CreateOrderResponse>> createCustomerOrder(
             @RequestBody CreateOrderRequest request
     ){
         // 고객 직접 주문이므로 Admin 파라미터는 null로 전달
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(request, null));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(orderService.createOrder(request, null)));
     }
 
 
-    //[관리자 전용] 주문 목록 조회 (페이징/키워드검색)
+    // [관리자 전용] 주문 목록 조회 (페이징/키워드검색)
     @GetMapping("/admins/orders")
-    public ResponseEntity<Page<GetOrderListResponse>> getOrderList(
+    public ResponseEntity<ApiResponse<Page<GetOrderListResponse>>> getOrderList(
             @RequestParam(required = false) String keyword,
             @RequestParam OrderStatus status,
             @PageableDefault(page = 0, size = 10, sort = "orderDate", direction = Sort.Direction.DESC) Pageable pageable
     ){
         Page<GetOrderListResponse> response = orderService.getOrderList(keyword, status, pageable);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }
 
     // 주문 상세 정보 조회(고객)
     @GetMapping("/customers/orders/{orderId}")
-    public ResponseEntity<GetOrderDetailResponse> getOrderDetail(
+    public ResponseEntity<ApiResponse<GetOrderDetailResponse>> getOrderDetail(
             @PathVariable Long orderId
     ){
         GetOrderDetailResponse response = orderService.getOrderDetail(orderId);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }
 
 
