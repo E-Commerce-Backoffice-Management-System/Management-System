@@ -73,7 +73,7 @@ public class Product extends BaseEntity {
             throw new ProductException(ErrorCode.PRODUCT_DISCONTINUED);
         }
         if (newStock < 0) {
-            throw new ProductException(ErrorCode.INVALID_STOCK_QUANTITY);
+            throw new ProductException(ErrorCode.PRODUCT_INVALID_STOCK_QUANTITY);
         }
         this.stock = newStock;
         updateStatusByStock();
@@ -84,7 +84,7 @@ public class Product extends BaseEntity {
             throw new ProductException(ErrorCode.PRODUCT_DISCONTINUED);
         }
         if (quantity <= 0) {
-            throw new ProductException(ErrorCode.INVALID_STOCK_QUANTITY);
+            throw new ProductException(ErrorCode.PRODUCT_INVALID_STOCK_QUANTITY);
         }
         this.stock += quantity;
         updateStatusByStock();
@@ -96,11 +96,11 @@ public class Product extends BaseEntity {
         }
         // 감소요청이 0보다 작거나 같을 경우 예외처리(증감수량은 1이상이어야해)
         if (quantity <= 0) {
-            throw new ProductException(ErrorCode.INVALID_STOCK_QUANTITY);
+            throw new ProductException(ErrorCode.PRODUCT_INVALID_STOCK_QUANTITY);
         }
         // 재고보다 감소 요청이 더 많을 경우 예외처리
         if (this.stock - quantity < 0) {
-            throw new ProductException(ErrorCode.INSUFFICIENT_STOCK);
+            throw new ProductException(ErrorCode.PRODUCT_INSUFFICIENT_STOCK);
         }
         this.stock -= quantity;
         updateStatusByStock();

@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
 
     // Admin 에외처리
     @ExceptionHandler(AdminException.class)
-    public ResponseEntity<ApiResponse<Void>>handleMemberException(AdminException e, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Void>>handleAdminException(AdminException e, HttpServletRequest request) {
         log.warn("AdminException : {}", e.getMessage());
         ErrorCode errorCode = e.getErrorCode();
         return ResponseEntity
@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
 
     // Customer 에외처리
     @ExceptionHandler(CustomerException.class)
-    public ResponseEntity<ApiResponse<Void>>handleMemberException(CustomerException e, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Void>>handleCustomerException(CustomerException e, HttpServletRequest request) {
         log.warn("CustomerException : {}", e.getMessage());
         ErrorCode errorCode = e.getErrorCode();
         return ResponseEntity
@@ -38,8 +38,29 @@ public class GlobalExceptionHandler {
 
     // Product 에외처리
     @ExceptionHandler(ProductException.class)
-    public ResponseEntity<ApiResponse<Void>> handleMemberException(ProductException e, HttpServletRequest request) {
-        log.warn("ProductExceptionn : {}", e.getMessage());
+    public ResponseEntity<ApiResponse<Void>> handleProductException(ProductException e, HttpServletRequest request) {
+        log.warn("ProductException : {}", e.getMessage());
+        ErrorCode errorCode = e.getErrorCode();
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(ApiResponse.fail(buildErrorResponse(errorCode, e.getMessage(), request.getRequestURI())));
+    }
+
+    // Order 에외처리
+    @ExceptionHandler(OrderException.class)
+    public ResponseEntity<ApiResponse<Void>> handleOrderException(OrderException e, HttpServletRequest request) {
+        log.warn("OrderException : {}", e.getMessage());
+        ErrorCode errorCode = e.getErrorCode();
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(ApiResponse.fail(buildErrorResponse(errorCode, e.getMessage(), request.getRequestURI())));
+    }
+
+
+    // Review 에외처리
+    @ExceptionHandler(ReviewException.class)
+    public ResponseEntity<ApiResponse<Void>> handleReviewException(ReviewException e, HttpServletRequest request) {
+        log.warn("ReviewException : {}", e.getMessage());
         ErrorCode errorCode = e.getErrorCode();
         return ResponseEntity
                 .status(errorCode.getStatus())
@@ -83,6 +104,7 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now(),
                 errorCode.getStatus().value(),
                 errorCode.getStatus().name(),
+                errorCode.getCode(),
                 message,
                 path
         );
