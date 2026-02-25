@@ -25,6 +25,7 @@ public class CustomerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(customerService.customerSignup(request)));
     }
 
+    // customer 로그 아웃
     @PostMapping("/customerLogin")
     public ResponseEntity<Void> customerLogin(
             @Valid @RequestBody CustomerLoginRequest request, HttpSession session) {
