@@ -2,7 +2,7 @@ package com.managementSystem.order.entity;
 
 import com.managementSystem.admin.entity.Admin;
 import com.managementSystem.customer.entity.Customer;
-import com.managementSystem.product.entity.Product; // 이제 정상 임포트 가능!
+import com.managementSystem.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -25,6 +25,7 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // 주문 고유 번호 (예: ORD-A1B2C3D4)
     @Column(nullable = false, unique = true)
     private String orderNumber;
 
@@ -36,6 +37,7 @@ public class Order {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    // CS 주문 등록 시 담당 관리자 (고객 직접 주문 시 null 가능)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "admin_id", nullable = true)
     private Admin admin;
@@ -58,8 +60,10 @@ public class Order {
 
     @Builder
     public Order(Customer customer, Product product, Admin admin, int quantity) {
+        // 수량 유효성 검사
         validateQuantity(quantity);
-        product.updateStock(quantity); // 팀원이 만든 Product 메서드 호출
+        // 재고 차감 메서드 호출
+        product.decreaseStock(quantity);
 
         this.orderNumber = "ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         this.customer = customer;
@@ -67,9 +71,10 @@ public class Order {
         this.admin = admin;
         this.quantity = quantity;
         this.totalPrice = (long) product.getPrice() * quantity;
+        // 주문 초기 상태: 준비중
         this.status = OrderStatus.PREPARING;
     }
-
+    //주문 수량 검증
     private void validateQuantity(int quantity) {
         if (quantity < 1) {
             throw new IllegalArgumentException("수량은 1 이상이어야 합니다.");

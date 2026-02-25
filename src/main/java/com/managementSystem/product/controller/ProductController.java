@@ -1,5 +1,6 @@
 package com.managementSystem.product.controller;
 
+import com.managementSystem.global.dto.ApiResponse;
 import com.managementSystem.product.dto.*;
 import com.managementSystem.product.enums.Category;
 import com.managementSystem.product.enums.Status;
@@ -18,16 +19,16 @@ public class ProductController {
 
     //상품 생성
     @PostMapping("/products")
-    public ResponseEntity<CreateProductResponse> saveProduct(
+    public ResponseEntity<ApiResponse<CreateProductResponse>> saveProduct(
             //@RequestAttribute Long adminId,
             @Valid @RequestBody CreateProductRequest request
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(productService.save(1L, request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(productService.save(1L, request)));
     }
 
     //상품 리스트 조회
     @GetMapping("/products")
-    public ResponseEntity<GetProductPageResponse> getAllProducts(
+    public ResponseEntity<ApiResponse<GetProductPageResponse>>getAllProducts(
             @RequestParam(required = false) String productName,
             @RequestParam(required = false) Category category,
             @RequestParam(required = false) Status status,
@@ -37,24 +38,24 @@ public class ProductController {
             @RequestParam(defaultValue = "desc") String sort
     ) {
         GetProductPageResponse response = productService.getProduct(productName, category, status, page, size, sortBy, sort);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }
 
     //상품 상세 조회
     @GetMapping("/products/{productId}")
-    public ResponseEntity<GetOneProductResponse> getDetailProduct(
+    public ResponseEntity<ApiResponse<GetOneProductResponse>> getDetailProduct(
             @PathVariable Long productId
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(productService.getProduct(productId));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(productService.getProduct(productId)));
     }
 
     //상품 업데이트
     @PatchMapping("/products/{productId}")
-    public ResponseEntity<UpdateProductResponse> updateProduct(
+    public ResponseEntity<ApiResponse<UpdateProductResponse>> updateProduct(
             @PathVariable Long productId,
             @Valid @RequestBody UpdateProductRequest request
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(productService.updateProduct(productId, request));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(productService.updateProduct(productId, request)));
     }
 
     //상품 삭제

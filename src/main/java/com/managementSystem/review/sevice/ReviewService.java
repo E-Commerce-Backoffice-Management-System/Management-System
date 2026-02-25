@@ -37,16 +37,16 @@ public class ReviewService {
     @Transactional
     public CreateReviewResponse save(Long customerId, Long productId, CreateReviewRequest request){
         Customer customer = customerRepository.findById(customerId).orElseThrow(
-                () -> new ReviewException(ErrorCode.CUSTOMER_NOT_FOUND.getMessage()));
+                () -> new ReviewException(ErrorCode.CUSTOMER_NOT_FOUND));
         if(!customer.getId().equals(customerId)){
-            throw new CustomerException(ErrorCode.NO_AUTHORITY);
+            throw new CustomerException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
         Product product = productRepository.findById(productId).orElseThrow(
                 () -> new ProductException(ErrorCode.PRODUCT_NOT_FOUND)
         );
 
         Order order = orderRepository.findById(1L).orElseThrow(
-                () -> new OrderException(ErrorCode.INTERNAL_SERVER_ERROR.getMessage())
+                () -> new OrderException(ErrorCode.INTERNAL_SERVER_ERROR)
         );
         Review review = new Review(request.getRating(),request.getContent(),product,customer,order);
         Review savedreview = reviewRepository.save(review);
@@ -82,7 +82,7 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public GetReviewDetailResponse getReviewDetail(Long reviewId){
         Review review = reviewRepository.findById(reviewId).orElseThrow(
-                () -> new ReviewException(ErrorCode.REVIEW_NOT_FOUND.getMessage()));
+                () -> new ReviewException(ErrorCode.REVIEW_NOT_FOUND));
 
         return new GetReviewDetailResponse(
                 review.getProduct().getName(),
@@ -97,16 +97,16 @@ public class ReviewService {
     @Transactional
     public void deleteReview(Long adminId, Long reviewId){
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
+                () -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND)
         );
         if(admin.getRole() != AdminRole.SUPER_ADMIN) {
-            throw new AdminException(ErrorCode.NO_AUTHORITY);
+            throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
         Review review = reviewRepository.findById(reviewId).orElseThrow(
-                () -> new ReviewException(ErrorCode.REVIEW_NOT_FOUND.getMessage())
+                () -> new ReviewException(ErrorCode.REVIEW_NOT_FOUND)
         );
         if (review.isDeleted()) {
-            throw new ReviewException(ErrorCode.ALREADY_DELETED.getMessage());
+            throw new ReviewException(ErrorCode.ALREADY_DELETED);
         }
 
         review.delete(true);

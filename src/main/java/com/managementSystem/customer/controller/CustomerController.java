@@ -2,6 +2,8 @@ package com.managementSystem.customer.controller;
 
 import com.managementSystem.customer.dto.*;
 import com.managementSystem.customer.service.CustomerService;
+import com.managementSystem.global.dto.ApiResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,32 +18,48 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
+    // customer 회원 가입
+    @PostMapping("/customerSignup")
+    public ResponseEntity<ApiResponse<CustomerSignupResponse>> customerSignup(
+            @RequestBody CustomerSignupRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(customerService.customerSignup(request)));
+    }
+
+    // customer 로그 아웃
+    @PostMapping("/customerLogin")
+    public ResponseEntity<Void> customerLogin(
+            @Valid @RequestBody CustomerLoginRequest request, HttpSession session) {
+        SessionCustomer sessionCustomer = customerService.customerLogin(request);
+        session.setAttribute("sessionCustomer", sessionCustomer);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
     @PostMapping("/customers")
-    public ResponseEntity<CreateCustomerResponse> createCustomer(
+    public ResponseEntity<ApiResponse<CreateCustomerResponse>> createCustomer(
             @Valid @RequestBody CreateCustomerRequest request
     ){
-        return ResponseEntity.status(HttpStatus.CREATED).body(customerService.save(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(customerService.save(request)));
     }
     @GetMapping("/customers")
-    public ResponseEntity<Page<GetCustomerResponse>> getAll(
+    public ResponseEntity<ApiResponse<Page<GetCustomerResponse>>> getAll(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String direction
             ){
-        return ResponseEntity.status(HttpStatus.OK).body(customerService.findAll(keyword, page, size, sortBy, direction));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(customerService.findAll(keyword, page, size, sortBy, direction)));
     }
     @GetMapping("/customers/{customerId}")
-    public ResponseEntity<GetCustomerResponse> getOne(@PathVariable Long customerId){
-        return ResponseEntity.status(HttpStatus.OK).body(customerService.findOne(customerId));
+    public ResponseEntity<ApiResponse<GetCustomerResponse>> getOne(@PathVariable Long customerId){
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(customerService.findOne(customerId)));
     }
     @PatchMapping("/customers/{customerId}")
-    public ResponseEntity<UpdateCustomerResponse> updateCustomer(
+    public ResponseEntity<ApiResponse<UpdateCustomerResponse>> updateCustomer(
             @PathVariable Long customerId,
             @RequestBody UpdateCustomerRequest request
     ){
-        return ResponseEntity.status(HttpStatus.OK).body(customerService.update(customerId, request));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(customerService.update(customerId, request)));
     }
     @PatchMapping("/customers/{customerId}/status")
     public ResponseEntity<Void> updateStatus(

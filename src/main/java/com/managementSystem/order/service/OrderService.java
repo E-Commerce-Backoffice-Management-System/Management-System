@@ -8,6 +8,7 @@ import com.managementSystem.customer.entity.Customer;
 import com.managementSystem.customer.repository.CustomerRepository;
 import com.managementSystem.exception.AdminException;
 import com.managementSystem.exception.ErrorCode;
+import com.managementSystem.exception.OrderException;
 import com.managementSystem.order.dto.*;
 import com.managementSystem.order.entity.Order;
 import com.managementSystem.order.entity.OrderStatus;
@@ -17,7 +18,9 @@ import com.managementSystem.product.enums.Status;
 import com.managementSystem.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,92 +33,111 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final AdminRepository adminRepository;
 
-    // 주문 생성 (CS 주문 or 고객 직접 주문)
+    // 주문 생성 (CS 주문)
     @Transactional
-    public CreateOrderResponse createOrder(CreateOrderRequest request, SessionAdmin sessionAdmin) {
-        Admin admin = null;
-        if (sessionAdmin != null) {
-            admin = adminRepository.findById(sessionAdmin.getId()).orElseThrow(
-                    () -> new AdminException(ErrorCode.USER_NOT_FOUND)
-            );
+    public CreateOrderResponse createAdminOrder(CreateOrderRequest request, SessionAdmin sessionAdmin) {
+        // 1. 관리자 조회 및 권한 체크
+        Admin admin = adminRepository.findById(sessionAdmin.getId())
+                .orElseThrow(() -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND));
+
+        if (admin.getStatus() != AdminStatus.ACTIVE) {
+            throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
-        if (admin.getStatus() != AdminStatus.APPROVED) {
-            throw new AdminException(ErrorCode.NO_AUTHORITY);
+
+        // 2. 공통 로직 호출 (new 키워드 제거 및 중괄호 수정)
+        return processOrder(request, admin, request.getCustomerId());
+    }
+
+    // 주문 생성 (고객 직접 주문)
+    @Transactional
+    public CreateOrderResponse createCustomerOrder(CreateOrderRequest request, Long currentCustomerId) {
+        // 고객 본인 세션 ID를 사용하여 공통 로직 호출
+        return processOrder(request, null, currentCustomerId);
+    }
+
+    // 주문 처리 공통 로직 (Private)
+    private CreateOrderResponse processOrder(CreateOrderRequest request, Admin admin, Long customerId) {
+        // 수량 검증 (1개 미만일 경우 예외 발생)
+        if (request.getQuantity() < 1) {
+            throw new OrderException(ErrorCode.ORDER_INVALID_QUANTITY);
         }
-        // 최소 주문 수량 검증
-        if (request.getQuantity() <= 1){
-            throw new IllegalArgumentException("수량은 1 이상이어야 합니다.");
-        }
-        // 관련 고객 및 상품 존재 여부 확인
-        Customer customer = customerRepository.findById(request.getCustomerId())
+
+        Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 고객입니다."));
 
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
-        // 상품 판매 가능 상태 확인 (단종 및 품절 여부)
-        if (product.getStatus() == Status.DISCONTINUED){
-            throw new IllegalArgumentException("단종된 상품입니다");
+
+        if (product.getStatus() == Status.DISCONTINUED) {
+            throw new IllegalArgumentException("단종된 상품입니다.");
         }
-        if (product.getStatus() == Status.SOLD_OUT){
+        if (product.getStatus() == Status.SOLD_OUT) {
             throw new IllegalArgumentException("품절되었거나 재고가 부족합니다.");
         }
-        // 주문 생성 및 저장 (상품 내부 로직에서 재고 차감 발생)
+
+        // 주문 생성 및 저장
         Order order = new Order(customer, product, admin, request.getQuantity());
         Order savedOrder = orderRepository.save(order);
 
         return new CreateOrderResponse(savedOrder);
     }
 
-
-    //주문 리스트 조회
+    // 주문 리스트 조회 (관리자용 페이징)
     @Transactional(readOnly = true)
-    public Page<GetOrderListResponse> getOrderList(String keyword, OrderStatus status, Pageable pageable) {
-        Page<Order> orderPage;
-        // 키워드가 없으면 전체 조회
-        if (keyword == null || keyword.isBlank()) {
-            orderPage = orderRepository.findAllByStatus(status, pageable);
-        } else if (keyword.startsWith("ORD")) {
-            // 주문번호로 조회
-            orderPage = orderRepository.findAllByOrderNumberContainingAndStatus(keyword, status, pageable);
-        } else {
-            // 고객명으로 조회
-            orderPage = orderRepository.findAllByCustomerNameContainingAndStatus(keyword, status, pageable);
-        }
-        return orderPage.map(GetOrderListResponse::from);
+    public GetOrderPageResponse getOrderList(
+            String keyword, OrderStatus status, int page, int size, String sortBy, String sort
+    ){
+        Sort.Direction direction = "asc".equalsIgnoreCase(sort) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(direction, sortBy));
+        Page<GetOrderListResponse> orderPage = orderRepository.findAllOrders(keyword, status, pageable);
+        return GetOrderPageResponse.from(orderPage);
     }
 
+    // 주문 상세 정보 조회 (고객용)
     @Transactional(readOnly = true)
-    public GetOrderDetailResponse getOrderDetail(Long orderId) {
-        //존재하지 않는 ID 요청 시 에러 반환
+    public GetOrderDetailResponse getOrderDetail(Long orderId, Long currentCustomerId) {
         Order order = orderRepository.findById(orderId).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 주문 ID입니다: " + orderId)
+                () -> new OrderException(ErrorCode.ORDER_NOT_FOUND)
         );
+
+        // 본인 주문인지 검증
+        if (!order.getCustomer().getId().equals(currentCustomerId)) {
+            throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
+        }
+
+        return GetOrderDetailResponse.from(order);
+    }
+
+    // 주문 상세 정보 조회 (CS관리자용)
+    @Transactional(readOnly = true)
+    public GetOrderDetailResponse getOrderDetailAdmin(Long orderId, SessionAdmin sessionAdmin) {
+        Admin admin = adminRepository.findById(sessionAdmin.getId())
+                .orElseThrow(() -> new AdminException(ErrorCode.ADMIN_NO_AUTHORITY));
+
+        if (admin.getStatus() != AdminStatus.ACTIVE) {
+            throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
+        }
+
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new OrderException(ErrorCode.ORDER_NOT_FOUND));
+
         return GetOrderDetailResponse.from(order);
     }
 
     // 주문 취소
     @Transactional
     public CancelOrderResponse cancelOrder(Long id, CancelOrderRequest request) {
-        // 주문 데이터 존재 확인
         Order order = orderRepository.findById(id).orElseThrow(
-                () -> new IllegalStateException()
-        );
+                () -> new OrderException(ErrorCode.ORDER_NOT_FOUND));
 
-        // 준비중 상태에서만 주문 취소 가능
         if (order.getStatus() != OrderStatus.PREPARING) {
-            throw new IllegalStateException();
+            throw new OrderException(ErrorCode.ORDER_NOT_PREPARING);
         }
 
-        // 상품 조회
         Product product = order.getProduct();
 
-        // 상품이 삭제되지 않았을 때만 재고 복구
         if(!product.isDeleted()) {
-            //재고 복구
-            int restoreQuantity = order.getQuantity();
-            product.increaseStock(restoreQuantity);
-
-            // 상품 상태 전환
+            product.increaseStock(order.getQuantity());
             if (product.getStatus() != Status.DISCONTINUED) {
                 product.updateStatusByStock();
             }

@@ -1,5 +1,6 @@
 package com.managementSystem.customer.service;
 
+import com.managementSystem.config.PasswordEncoder;
 import com.managementSystem.customer.dto.*;
 import com.managementSystem.customer.entity.Customer;
 import com.managementSystem.customer.entity.CustomerStatus;
@@ -20,12 +21,49 @@ import org.springframework.transaction.annotation.Transactional;
 public class CustomerService {
 
     public final CustomerRepository customerRepository;
+    public final PasswordEncoder passwordEncoder;
+
+    // Customer 회원가입
+    @Transactional
+    public CustomerSignupResponse customerSignup(CustomerSignupRequest request) {
+        if (customerRepository.existsByEmail(request.getEmail())) {
+            throw new CustomerException(ErrorCode.DUPLICATE_EMAIL);
+        }
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        Customer customer = new Customer(
+                request.getName(),
+                request.getEmail(),
+                encodedPassword,
+                request.getPhoneNumber()
+        );
+        Customer savedCustomer = customerRepository.save(customer);
+        return new CustomerSignupResponse(
+                savedCustomer.getId(),
+                savedCustomer.getName(),
+                savedCustomer.getEmail()
+        );
+    }
+
+    // Customer Login
+    @Transactional(readOnly = true)
+    public SessionCustomer customerLogin(CustomerLoginRequest request) {
+        Customer customer = customerRepository.findByEmail(request.getEmail()).orElseThrow(
+                () -> new CustomerException(ErrorCode.EMAIL_NOT_FOUND)
+        );
+        if (!passwordEncoder.matches(request.getPassword(), customer.getPassword())) {
+            throw new CustomerException(ErrorCode.MISTAKE_PASSWORD);
+        }
+        return new SessionCustomer(
+                customer.getId(),
+                customer.getEmail()
+        );
+    }
 
     @Transactional
     public CreateCustomerResponse save(CreateCustomerRequest request) {
         // 중복 체크
         if (customerRepository.existsByEmail(request.getEmail())){
-            throw new IllegalStateException("이미 존재하는 고객 입니다.");
+            throw new CustomerException(ErrorCode.CUSTOMER_DUPLICATE);
         }
         Customer customer = new Customer(request.getName(), request.getEmail(), request.getPhoneNumber());
         Customer savedCustomer = customerRepository.save(customer);
