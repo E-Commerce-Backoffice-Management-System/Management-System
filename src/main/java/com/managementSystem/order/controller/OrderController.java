@@ -1,6 +1,7 @@
 package com.managementSystem.order.controller;
 
 import com.managementSystem.admin.dto.SessionAdmin;
+import com.managementSystem.customer.dto.SessionCustomer;
 import com.managementSystem.global.dto.ApiResponse;
 import com.managementSystem.order.dto.*;
 import com.managementSystem.order.entity.OrderStatus;
@@ -101,16 +102,6 @@ public class OrderController {
     ) {
         CancelOrderResponse response = orderService.cancelOrder(orderId, request);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
-    }
-
-    // 주문 취소
-    @PatchMapping("/orders/{id}/camcel")
-    public ResponseEntity<ApiResponse<CancelOrderResponse>> cancelOrder(
-            @PathVariable Long id,
-            @Valid @RequestBody CancelOrderRequest request
-    ) {
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ApiResponse.success(orderService.cancelOrder(id,request)));
     }
 
 }
