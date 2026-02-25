@@ -2,6 +2,9 @@ package com.managementSystem.product.service;
 
 import com.managementSystem.admin.entity.Admin;
 import com.managementSystem.admin.repository.AdminRepository;
+import com.managementSystem.exception.AdminException;
+import com.managementSystem.exception.ErrorCode;
+import com.managementSystem.exception.ProductException;
 import com.managementSystem.product.dto.*;
 import com.managementSystem.product.entity.Product;
 import com.managementSystem.product.enums.Category;
@@ -23,12 +26,12 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final AdminRepository adminRepository;
 
-    //상품 생성
+    // 상품 생성
     @Transactional
     public CreateProductResponse save(Long adminId, CreateProductRequest request) {
         //현재 상품을 등록하려는 관리자 조회 Long adminId
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new IllegalStateException("관리자가 없습니다.")
+                () -> new AdminException(ErrorCode.ADMIN_NOT_FOUND)
         );
 
         Product savedProduct = productRepository.save(
@@ -72,7 +75,7 @@ public class ProductService {
     @Transactional
     public GetOneProductResponse getProduct(Long productId){
         Product product = productRepository.findById(productId).orElseThrow(
-                () -> new IllegalStateException("없는 상품입니다.")
+                () -> new ProductException(ErrorCode.PRODUCT_NOT_FOUND)
         );
 
         return new GetOneProductResponse(
@@ -90,7 +93,7 @@ public class ProductService {
     @Transactional
     public UpdateProductResponse updateProduct(Long productId, UpdateProductRequest request) {
         Product product = productRepository.findById(productId).orElseThrow(
-                () -> new IllegalStateException("없는 상품입니다.")
+                () -> new ProductException(ErrorCode.PRODUCT_NOT_FOUND)
         );
 
         product.updateProduct(
@@ -106,7 +109,7 @@ public class ProductService {
     @Transactional
     public void deleteProduct(Long productId){
         Product product = productRepository.findById(productId).orElseThrow(
-                () -> new IllegalStateException("상품이 존재하지 않습니다.")
+                () -> new ProductException(ErrorCode.PRODUCT_NOT_FOUND)
         );
 
         //삭제할때 댓글도 같이 삭제하게 만들기

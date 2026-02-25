@@ -7,7 +7,6 @@ import com.managementSystem.customer.entity.CustomerStatus;
 import com.managementSystem.customer.repository.CustomerRepository;
 import com.managementSystem.exception.CustomerException;
 import com.managementSystem.exception.ErrorCode;
-import com.managementSystem.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.error.Error;
 import org.springframework.data.domain.Page;
@@ -29,7 +28,7 @@ public class CustomerService {
     @Transactional
     public CustomerSignupResponse customerSignup(CustomerSignupRequest request) {
         if (customerRepository.existsByEmail(request.getEmail())) {
-            throw new CustomerException(ErrorCode.CUSTOMER_NOT_FOUND);
+            throw new CustomerException(ErrorCode.CUSTOMER_DUPLICATE);
         }
         String encodedPassword = passwordEncoder.encode(request.getPassword());
         Customer customer = new Customer(
