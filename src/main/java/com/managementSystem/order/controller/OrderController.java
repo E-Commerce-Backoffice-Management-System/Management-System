@@ -24,11 +24,10 @@ public class OrderController {
     public ResponseEntity<ApiResponse<CreateOrderResponse>> createAdminOrder(
             @RequestBody CreateOrderRequest request,
             @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin sessionAdmin
-    ){
-        if(sessionAdmin == null){
+    ) {
+        if (sessionAdmin == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        // 서비스 메서드명을 createAdminOrder로 호출해야 합니다.
         CreateOrderResponse response = orderService.createAdminOrder(request, sessionAdmin);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
     }
@@ -37,18 +36,14 @@ public class OrderController {
     @PostMapping("/customers/orders")
     public ResponseEntity<ApiResponse<CreateOrderResponse>> createCustomerOrder(
             @RequestBody CreateOrderRequest request,
-            HttpSession session
-    ){
-        // 세션에서 로그인한 고객 ID 추출
-        Long loginCustomerId = (Long) session.getAttribute("loginCustomer");
-
-        if (loginCustomerId == null) {
+            @SessionAttribute(name = "sessionCustomer", required = false) SessionCustomer sessionCustomer
+    ) {
+        if (sessionCustomer == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
-        // 서비스 호출 시 세션 ID 전달
-        CreateOrderResponse response = orderService.createCustomerOrder(request, loginCustomerId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
+        CreateOrderResponse response = orderService.createCustomerOrder(request, sessionCustomer.getId());
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(response));
     }
 
     // [관리자 전용] 주문 리스트 조회 (페이징/키워드검색)
@@ -60,9 +55,9 @@ public class OrderController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "orderDate") String sortBy,
             @RequestParam(defaultValue = "desc") String sort,
-            @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin
-    ){
-        if(loginAdmin == null){
+            @SessionAttribute(name = "loginAdmin", required = false) SessionAdmin loginAdmin
+    ) {
+        if (loginAdmin == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -74,14 +69,12 @@ public class OrderController {
     @GetMapping("/customers/orders/{orderId}")
     public ResponseEntity<ApiResponse<GetOrderDetailResponse>> getOrderDetail(
             @PathVariable Long orderId,
-            HttpSession session
-    ){
-        // 세션에서 로그인한 고객의 ID 꺼냄
-        Long customerId = (Long) session.getAttribute("loginCustomer");
-        if (customerId == null) {
+            @SessionAttribute(name = "sessionCustomer", required = false) SessionCustomer sessionCustomer
+    ) {
+        if (sessionCustomer == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        GetOrderDetailResponse response = orderService.getOrderDetail(orderId, customerId);
+        GetOrderDetailResponse response = orderService.getOrderDetail(orderId, sessionCustomer.getId());
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }
 
@@ -90,8 +83,8 @@ public class OrderController {
     public ResponseEntity<ApiResponse<GetOrderDetailResponse>> getOrderDetailAdmin(
             @PathVariable Long orderId,
             @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin sessionAdmin
-    ){
-        if(sessionAdmin == null){
+    ) {
+        if (sessionAdmin== null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -109,13 +102,13 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }
 
-//    // 주문 취소
-//    @PatchMapping("/orders/{id}/camcel")
-//    public ResponseEntity<ApiResponse<CancelOrderResponse>> cancelOrder(
-//            @PathVariable Long id,
-//            @Valid @RequestBody CancelOrderRequest request
-//    ) {
-//        return ResponseEntity.status(HttpStatus.OK).body(
-//                ApiResponse.success(orderService.cancelOrder(id,request)));
-//    }
+    // 주문 취소
+    @PatchMapping("/orders/{id}/camcel")
+    public ResponseEntity<ApiResponse<CancelOrderResponse>> cancelOrder(
+            @PathVariable Long id,
+            @Valid @RequestBody CancelOrderRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(orderService.cancelOrder(id,request)));
+    }
 }

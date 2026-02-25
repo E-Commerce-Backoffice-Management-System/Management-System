@@ -25,7 +25,7 @@ public class CustomerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(customerService.customerSignup(request)));
     }
 
-    // customer 로그 아웃
+    // customer 로그인
     @PostMapping("/customerLogin")
     public ResponseEntity<Void> customerLogin(
             @Valid @RequestBody CustomerLoginRequest request, HttpSession session) {
@@ -33,27 +33,31 @@ public class CustomerController {
         session.setAttribute("sessionCustomer", sessionCustomer);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-
-    @PostMapping("/customers")
-    public ResponseEntity<ApiResponse<CreateCustomerResponse>> createCustomer(
-            @Valid @RequestBody CreateCustomerRequest request
-    ){
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(customerService.save(request)));
-    }
+//    // 고객 생성
+//    @PostMapping("/customers")
+//    public ResponseEntity<ApiResponse<CreateCustomerResponse>> createCustomer(
+//            @Valid @RequestBody CreateCustomerRequest request
+//    ){
+//        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(customerService.save(request)));
+//    }
+    // 고객 집계 리스트 조회 (도전)
     @GetMapping("/customers")
-    public ResponseEntity<ApiResponse<Page<GetCustomerResponse>>> getAll(
+    public ResponseEntity<ApiResponse<Page<GetCustomerListResponse>>> getAll(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String direction
-            ){
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(customerService.findAll(keyword, page, size, sortBy, direction)));
+    ){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(customerService.findAll(keyword, page, size, sortBy, direction)));
     }
+    //고객 상세 조회
     @GetMapping("/customers/{customerId}")
     public ResponseEntity<ApiResponse<GetCustomerResponse>> getOne(@PathVariable Long customerId){
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(customerService.findOne(customerId)));
     }
+    //고객 정보 수정
     @PatchMapping("/customers/{customerId}")
     public ResponseEntity<ApiResponse<UpdateCustomerResponse>> updateCustomer(
             @PathVariable Long customerId,
@@ -61,6 +65,7 @@ public class CustomerController {
     ){
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(customerService.update(customerId, request)));
     }
+    // 고객 상태 변경
     @PatchMapping("/customers/{customerId}/status")
     public ResponseEntity<Void> updateStatus(
             @PathVariable Long customerId,
@@ -69,7 +74,7 @@ public class CustomerController {
         customerService.updateStatus(customerId, request.getStatus());
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-
+    //  고객 탈퇴
     @DeleteMapping("/customers/{customerId}")
     public ResponseEntity<Void> deleteCustomer(@PathVariable Long customerId){
         customerService.delete(customerId);
