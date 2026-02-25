@@ -1,8 +1,14 @@
 package com.managementSystem.order.service;
 
+import com.managementSystem.admin.dto.SessionAdmin;
 import com.managementSystem.admin.entity.Admin;
+import com.managementSystem.admin.entity.AdminStatus;
+import com.managementSystem.admin.repository.AdminRepository;
 import com.managementSystem.customer.entity.Customer;
 import com.managementSystem.customer.repository.CustomerRepository;
+import com.managementSystem.exception.AdminException;
+import com.managementSystem.exception.ErrorCode;
+import com.managementSystem.exception.OrderException;
 import com.managementSystem.order.dto.*;
 import com.managementSystem.order.entity.Order;
 import com.managementSystem.order.entity.OrderStatus;
@@ -31,15 +37,15 @@ public class OrderService {
         Admin admin = null;
         if (sessionAdmin != null) {
             admin = adminRepository.findById(sessionAdmin.getId()).orElseThrow(
-                    () -> new AdminException(ErrorCode.USER_NOT_FOUND)
+                    () -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND)
             );
         }
         if (admin.getStatus() != AdminStatus.APPROVED) {
-            throw new AdminException(ErrorCode.NO_AUTHORITY);
+            throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
         // 최소 주문 수량 검증
         if (request.getQuantity() <= 1){
-            throw new IllegalArgumentException("수량은 1 이상이어야 합니다.");
+            throw new OrderException(ErrorCode.ORDER_INVALID_QUANTITY);
         }
         // 관련 고객 및 상품 존재 여부 확인
         Customer customer = customerRepository.findById(request.getCustomerId())
@@ -83,8 +89,8 @@ public class OrderService {
     public GetOrderDetailResponse getOrderDetail(Long orderId) {
         //존재하지 않는 ID 요청 시 에러 반환
         Order order = orderRepository.findById(orderId).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 주문 ID입니다: " + orderId)
-        );
+                () -> new OrderException(ErrorCode.ORDER_NOT_FOUND));
+
         return GetOrderDetailResponse.from(order);
     }
 
@@ -93,12 +99,11 @@ public class OrderService {
     public CancelOrderResponse cancelOrder(Long id, CancelOrderRequest request) {
         // 주문 데이터 존재 확인
         Order order = orderRepository.findById(id).orElseThrow(
-                () -> new IllegalStateException()
-        );
+                () -> new OrderException(ErrorCode.ORDER_NOT_FOUND));
 
         // 준비중 상태에서만 주문 취소 가능
         if (order.getStatus() != OrderStatus.PREPARING) {
-            throw new IllegalStateException();
+            throw new OrderException(ErrorCode.ORDER_NOT_PREPARING);
         }
 
         // 상품 조회

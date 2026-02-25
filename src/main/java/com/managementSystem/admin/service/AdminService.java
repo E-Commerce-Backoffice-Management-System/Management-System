@@ -6,7 +6,6 @@ import com.managementSystem.admin.entity.AdminRole;
 import com.managementSystem.admin.entity.AdminStatus;
 import com.managementSystem.admin.repository.AdminRepository;
 import com.managementSystem.config.PasswordEncoder;
-import com.managementSystem.customer.entity.Customer;
 import com.managementSystem.exception.AdminException;
 import com.managementSystem.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,7 @@ public class AdminService {
     @Transactional
     public AdminSignupResponse save(AdminSignupRequest request) {
         if (adminRepository.existsByEmail(request.getEmail())) {
-            throw new AdminException(ErrorCode.DUPLICATE_EMAIL);
+            throw new AdminException(ErrorCode.ADMIN_DUPLICATE_EMAIL);
         }
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
@@ -55,10 +54,10 @@ public class AdminService {
     @Transactional(readOnly = true)
     public AdminGetResponse getAdmin(Long adminId, SessionAdmin loginAdmin) {
         if (loginAdmin.getRole() != AdminRole.SUPER_ADMIN) {
-            throw new AdminException(ErrorCode.NO_AUTHORITY);
+            throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
+                () -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND)
         );
         return new AdminGetResponse(
                 admin.getId(),
@@ -95,10 +94,10 @@ public class AdminService {
     @Transactional
     public AdminUpdateResponse updateAdmin(Long adminId, AdminUpdateRequest request, SessionAdmin loginAdmin) {
         if (loginAdmin.getRole() != AdminRole.SUPER_ADMIN) {
-            throw new AdminException(ErrorCode.NO_AUTHORITY);
+            throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new AdminException(ErrorCode.USER_NOT_FOUND));
+                () -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND));
 
         admin.AdminUpdate(request.getName(), request.getEmail(), request.getPhoneNumber());
         return new AdminUpdateResponse(
@@ -113,10 +112,10 @@ public class AdminService {
     @Transactional
     public void AdminDelete(Long adminId, SessionAdmin loginAdmin) {
         if (loginAdmin.getRole() != AdminRole.SUPER_ADMIN) {
-            throw new AdminException(ErrorCode.NO_AUTHORITY);
+            throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
+                () -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND)
         );
         // Soft Delete
         admin.AdminStatusUpdate(AdminStatus.INACTIVE);
@@ -128,10 +127,10 @@ public class AdminService {
     @Transactional(readOnly = true)
     public SessionAdmin login(AdminLoginRequest request) {
         Admin admin = adminRepository.findByEmail(request.getEmail()).orElseThrow(
-                () -> new AdminException(ErrorCode.EMAIL_NOT_FOUND)
+                () -> new AdminException(ErrorCode.ADMIN_EMAIL_NOT_FOUND)
         );
         if(!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
-            throw new AdminException(ErrorCode.MISTAKE_PASSWORD);
+            throw new AdminException(ErrorCode.ADMIN_MISTAKE_PASSWORD);
         }
         checkAdminStatus(admin);
 
@@ -144,16 +143,16 @@ public class AdminService {
 
     private void checkAdminStatus(Admin admin) {
         if (admin.getStatus().equals(AdminStatus.PENDING)) {
-            throw new AdminException(ErrorCode.PENDING_ADMIN);
+            throw new AdminException(ErrorCode.ADMIN_PENDING_ADMIN);
         }
         if (admin.getStatus().equals(AdminStatus.INACTIVE)) {
-            throw new AdminException(ErrorCode.INACTIVE_ADMIN);
+            throw new AdminException(ErrorCode.ADMIN_INACTIVE_ADMIN);
         }
         if (admin.getStatus().equals(AdminStatus.REJECTED)) {
-            throw new AdminException(ErrorCode.REJECTED_ADMIN);
+            throw new AdminException(ErrorCode.ADMIN_REJECTED_ADMIN);
         }
         if (admin.getStatus().equals(AdminStatus.SUSPENDED)) {
-            throw new AdminException(ErrorCode.SUSPENDED_ADMIN);
+            throw new AdminException(ErrorCode.ADMIN_SUSPENDED_ADMIN);
         }
     }
 
@@ -161,10 +160,10 @@ public class AdminService {
     @Transactional
     public void approveAdmin(Long adminId, SessionAdmin loginAdmin) {
         if ((loginAdmin.getRole() != AdminRole.SUPER_ADMIN)) {
-            throw new AdminException(ErrorCode.NO_AUTHORITY);
+            throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
+                () -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND)
         );
         admin.approve();
     }
@@ -173,10 +172,10 @@ public class AdminService {
     @Transactional
     public void updateAdminStatus(Long adminId, AdminStatusRequest request, SessionAdmin loginAdmin) {
         if (loginAdmin.getRole() != AdminRole.SUPER_ADMIN) {
-            throw new AdminException(ErrorCode.NO_AUTHORITY);
+            throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
+                () -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND)
         );
         if (request.getStatus() == AdminStatus.ACTIVE) {
             admin.approve();
@@ -206,10 +205,10 @@ public class AdminService {
     @Transactional
     public AdminRoleUpdateResponse updateRole(Long adminId, AdminRoleUpdateRequest request, SessionAdmin loginAdmin) {
         if (loginAdmin.getRole() != AdminRole.SUPER_ADMIN) {
-            throw new AdminException(ErrorCode.NO_AUTHORITY);
+            throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
+                () -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND)
         );
         admin.AdminRoleUpdate(request.getRole());
         return new AdminRoleUpdateResponse(
@@ -223,10 +222,10 @@ public class AdminService {
     @Transactional
     public AdminStatusUpdateResponse updateStatus(Long adminId, AdminStatusUpdateRequest request, SessionAdmin loginAdmin) {
         if (loginAdmin.getRole() != AdminRole.SUPER_ADMIN) {
-            throw new AdminException(ErrorCode.NO_AUTHORITY);
+            throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
+                () -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND)
         );
         admin.AdminStatusUpdate(request.getStatus());
         return new AdminStatusUpdateResponse(
@@ -238,10 +237,10 @@ public class AdminService {
     @Transactional(readOnly = true)
     public AdminGetProfileResponse getAdminProfile(Long adminId, SessionAdmin loginAdmin) {
         if (!loginAdmin.getId().equals(adminId)) {
-            throw new AdminException(ErrorCode.NO_AUTHORITY);
+            throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
+                () -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND)
         );
 
         return new AdminGetProfileResponse(
@@ -256,10 +255,10 @@ public class AdminService {
     public AdminUpdateProfileResponse updateAdminProfile(
             Long adminId, AdminUpdateProfileRequest request, SessionAdmin loginAdmin) {
         if (!loginAdmin.getId().equals(adminId)) {
-            throw new AdminException(ErrorCode.NO_AUTHORITY);
+            throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
+                () -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND)
         );
         admin.AdminUpdateProfile(request.getName(), request.getEmail(), request.getPhoneNumber());
         return new AdminUpdateProfileResponse(
@@ -274,10 +273,10 @@ public class AdminService {
     public AdminUpdatePasswordResponse updateAdminPassword(Long adminId, AdminUpdatePasswordRequest
             request, SessionAdmin loginAdmin) {
         if (!loginAdmin.getId().equals(adminId)) {
-            throw new AdminException(ErrorCode.NO_AUTHORITY);
+            throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new AdminException(ErrorCode.USER_NOT_FOUND)
+                () -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND)
         );
         String encodedPassword = passwordEncoder.encode(request.getPassword());
         admin.AdminUpdatePassword(encodedPassword);
