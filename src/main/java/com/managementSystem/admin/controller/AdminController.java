@@ -160,7 +160,7 @@ public class AdminController {
     }
 
     // 관리자 삭제
-    @DeleteMapping("/admin/{adminId}")
+    @DeleteMapping("/admins/{adminId}/deletes")
     public ResponseEntity<Void> deleteAdmin(
             @PathVariable Long adminId,
             @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin loginAdmin) {

@@ -22,6 +22,14 @@ public enum ErrorCode {
     ADMIN_INVALID_STATUS_CHANGE(HttpStatus.BAD_REQUEST, "A012", "잘못된 상태 변경 요청입니다."),
     ADMIN_LOGIN_REQUIRED(HttpStatus.UNAUTHORIZED, "A013", "로그인이 필요합니다."),
 
+    ADMIN_INVALID_STATUS(HttpStatus.BAD_REQUEST, "A014", "잘못된 상태 변경 요청입니다."),
+    ADMIN_LOGIN_IS_REQUIRED(HttpStatus.BAD_REQUEST, "A015", "로그인이 필요합니다."),
+    ADMIN_PENDING_STATUS_CAN_BE_APPROVE(HttpStatus.BAD_REQUEST, "A016", "승인 대기 중인 관리자만 승인할 수 있습니다."),
+    ADMIN_PENDING_STATUS_CAN_BE_REJECTED(HttpStatus.BAD_REQUEST, "A017", "승인 대기 상태인 관리자만 거부할 수 있습니다."),
+    ADMIN_REJECTED_REASON_IS_REQUIRED(HttpStatus.BAD_REQUEST, "A018", "거부 사유는 필수입니다."),
+    ADMIN_ALREADY_APPROVE(HttpStatus.BAD_REQUEST,"A019", "이미 승인된 관리자 입니다."),
+    ADMIN_ALREADY_REJECTED(HttpStatus.BAD_REQUEST, "A020", "이미 거부된 관리자 입니다."),
+    ADMIN_DUPLICATE_PASSWORD(HttpStatus.BAD_REQUEST, "A021", "변경 전 비밀번호와 같을 수 없습니다."),
 
 
     // Customer 에러 처리
@@ -49,7 +57,8 @@ public enum ErrorCode {
 
     // 공통 에러 (G로 시작)
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "G001", "잘못된 입력값입니다."),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "G002", "서버 내부 오류가 발생했습니다.");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "G002", "서버 내부 오류가 발생했습니다."),
+    GLOBAL_MISTAKE_PASSWORD(HttpStatus.UNAUTHORIZED,"G003" ,"비밀번호가 일치하지 않습니다.");
 
     private final HttpStatus status;
     private final String code;
