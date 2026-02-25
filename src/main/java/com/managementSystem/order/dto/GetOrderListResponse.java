@@ -1,38 +1,30 @@
 package com.managementSystem.order.dto;
 
-import com.managementSystem.order.entity.Order;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.managementSystem.order.entity.OrderStatus;
 import java.time.LocalDate;
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class GetOrderListResponse {
-    private Long id;
-    private String orderNumber;
-    private String customerName;
-    private String productName;
-    private int quantity;
-    private Long totalPrice;
-    private LocalDate orderDate;
-    private String status;
-    private String adminName;
-
-    public static GetOrderListResponse from(Order order) {
-        return GetOrderListResponse.builder()
-                .id(order.getId())
-                .orderNumber(order.getOrderNumber())
-                .customerName(order.getCustomer().getName())
-                .productName(order.getProduct().getName())
-                .quantity(order.getQuantity())
-                .totalPrice(order.getTotalPrice())
-                .orderDate(order.getOrderDate())
-                .status(order.getStatus().name())
-                .adminName(order.getAdmin() != null ? order.getAdmin().getName() : "고객직접주문")
-                .build();
+public record GetOrderListResponse(
+        Long id,
+        String orderNumber,
+        String customerName,
+        String productName,
+        int quantity,
+        Long totalPrice,
+        LocalDate orderDate,
+        OrderStatus status,
+        String adminName
+) {
+    public static GetOrderListResponse from(com.managementSystem.order.entity.Order order) {
+        return new GetOrderListResponse(
+                order.getId(),
+                order.getOrderNumber(),
+                order.getCustomer().getName(),
+                order.getProduct().getName(),
+                order.getQuantity(),
+                order.getTotalPrice(),
+                order.getOrderDate(),
+                order.getStatus(),
+                order.getAdmin() != null ? order.getAdmin().getName() : "고객직접주문"
+        );
     }
 }
