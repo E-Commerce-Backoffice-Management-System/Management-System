@@ -18,6 +18,10 @@ public enum ErrorCode {
     ADMIN_REJECTED_ADMIN(HttpStatus.FORBIDDEN,"A008" ,"관리자에게 거부된 계정입니다."),
     ADMIN_SUSPENDED_ADMIN(HttpStatus.FORBIDDEN, "A009","정지된 계정입니다."),
     ADMIN_ALREADY_LOGIN(HttpStatus.BAD_REQUEST, "A010", "이미 로그인된 계정입니다."),
+    ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "A011", "해당 관리자를 찾을 수 없습니다."),
+    ADMIN_INVALID_STATUS_CHANGE(HttpStatus.BAD_REQUEST, "A012", "잘못된 상태 변경 요청입니다."),
+    ADMIN_LOGIN_REQUIRED(HttpStatus.UNAUTHORIZED, "A013", "로그인이 필요합니다."),
+
 
 
     // Customer 에러 처리
