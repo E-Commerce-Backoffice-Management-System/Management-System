@@ -33,13 +33,16 @@ public class CustomerController {
         session.setAttribute("sessionCustomer", sessionCustomer);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-//    // 고객 생성
-//    @PostMapping("/customers")
-//    public ResponseEntity<ApiResponse<CreateCustomerResponse>> createCustomer(
-//            @Valid @RequestBody CreateCustomerRequest request
-//    ){
-//        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(customerService.save(request)));
-//    }
+    // 고객 로그아웃
+    @PostMapping("/customer/logout")
+    public ResponseEntity<Void> customerLogout(
+            @SessionAttribute(name = "sessionCustomer", required = false) SessionCustomer sessionCustomer, HttpSession session) {
+        if (sessionCustomer == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        session.invalidate();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
     // 고객 집계 리스트 조회 (도전)
     @GetMapping("/customers")
     public ResponseEntity<ApiResponse<Page<GetCustomerListResponse>>> getAll(
