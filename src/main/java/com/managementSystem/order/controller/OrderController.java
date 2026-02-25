@@ -49,7 +49,7 @@ public class OrderController {
     }
 
     // [관리자 전용] 주문 리스트 조회 (페이징/키워드검색)
-    @GetMapping("/admins/orders")
+    @GetMapping("orders")
     public ResponseEntity<ApiResponse<GetOrderPageResponse>> getOrderList(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) OrderStatus status,
@@ -57,9 +57,9 @@ public class OrderController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "orderDate") String sortBy,
             @RequestParam(defaultValue = "desc") String sort,
-            @SessionAttribute(name = "loginAdmin", required = false) SessionAdmin loginAdmin
+            @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin sessionAdmin
     ) {
-        if (loginAdmin == null) {
+        if (sessionAdmin == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -86,7 +86,7 @@ public class OrderController {
             @PathVariable Long orderId,
             @SessionAttribute(name = "sessionAdmin", required = false) SessionAdmin sessionAdmin
     ) {
-        if (sessionAdmin== null) {
+        if (sessionAdmin == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
