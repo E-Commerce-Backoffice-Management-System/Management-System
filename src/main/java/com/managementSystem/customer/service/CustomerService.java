@@ -108,19 +108,23 @@ public class CustomerService {
             );
         });
     }
-
+    //고객 상세 조회
     @Transactional(readOnly = true)
     public GetCustomerResponse findOne(Long customerId) {
         Customer customer = customerRepository.findById(customerId).orElseThrow(
                 () -> new CustomerException(ErrorCode.CUSTOMER_NOT_FOUND)
         );
+        long totalOrderCount = orderRepository.countByCustomerId(customerId);
+        long totalOrderAmount = orderRepository.sumTotalPriceByCustomerId(customerId);
         return new GetCustomerResponse(
                 customer.getId(),
                 customer.getName(),
                 customer.getEmail(),
                 customer.getPhoneNumber(),
                 customer.getStatus(),
-                customer.getCreatedAt()
+                customer.getCreatedAt(),
+                totalOrderCount,
+                totalOrderAmount
         );
     }
     @Transactional
