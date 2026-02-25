@@ -1,5 +1,8 @@
 package com.managementSystem.admin.entity;
 
+import com.managementSystem.exception.AdminException;
+import com.managementSystem.exception.ErrorCode;
+import com.managementSystem.exception.ReviewException;
 import com.managementSystem.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -65,9 +68,13 @@ public class Admin extends BaseEntity {
 
     // 승인 대기중 관리자를 승인하여 활성화상태로 만들어주는 메서드
     public void approve() {
+        // 이미 승인되어서 ACTIVE 상태인 관리자라면
+        if(this.status == AdminStatus.ACTIVE) {
+            throw new AdminException(ErrorCode.ADMIN_ALREADY_APPROVE);
+        }
         // 만약 해당 관리자가 승인대기중 상태가 아니라면
         if(this.status != AdminStatus.PENDING) {
-            throw new IllegalStateException("승인 대기중인 관리자만 승인할 수 있습니다.");
+            throw new AdminException(ErrorCode.ADMIN_PENDING_STATUS_CAN_BE_APPROVE);
         }
         // 승인 대기중 -> 활성화
         this.status = AdminStatus.ACTIVE;
@@ -75,12 +82,15 @@ public class Admin extends BaseEntity {
     }
     // 관리자 거부 메서드, String reason -> 거부 사유
     public void reject(String reason) {
+        if (this.status == AdminStatus.REJECTED) {
+            throw new AdminException(ErrorCode.ADMIN_ALREADY_REJECTED);
+        }
         if (this.status != AdminStatus.PENDING) {
-            throw new IllegalStateException("승인 대기 상태인 관리자만 거부할 수 있습니다.");
+            throw new AdminException(ErrorCode.ADMIN_PENDING_STATUS_CAN_BE_REJECTED);
         }
         // 거부 사유는 필수로 작성, null이면 예외 던지기
         if (reason == null){
-            throw new IllegalStateException("거부 사유는 필수 입니다.");
+            throw new AdminException(ErrorCode.ADMIN_REJECTED_REASON_IS_REQUIRED);
         }
         // 거부 상태로 변경
         this.status = AdminStatus.REJECTED;
@@ -112,8 +122,8 @@ public class Admin extends BaseEntity {
         this.phoneNumber=phoneNumber;
     }
 
-    public void AdminUpdatePassword(String password){
-        this.password = password;
+    public void AdminUpdatePassword(String encodedPassword){
+        this.password = encodedPassword;
     }
 
     public void delete(boolean isDeleted) {
