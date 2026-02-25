@@ -37,7 +37,7 @@ public class ProductService {
         Product savedProduct = productRepository.save(
                 Product.builder()
                         .name(request.name())
-                        .category(Category.ELECTRONICS)
+                        .category(request.category())
                         .price(request.price())
                         .stock(request.stock())
                         .status(Status.ON_SALE)
