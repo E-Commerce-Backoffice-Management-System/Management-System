@@ -2,6 +2,7 @@ package com.managementSystem.order.service;
 
 import com.managementSystem.admin.dto.SessionAdmin;
 import com.managementSystem.admin.entity.Admin;
+import com.managementSystem.admin.entity.AdminRole;
 import com.managementSystem.admin.entity.AdminStatus;
 import com.managementSystem.admin.repository.AdminRepository;
 import com.managementSystem.customer.entity.Customer;
@@ -36,25 +37,22 @@ public class OrderService {
     // 주문 생성 (CS 주문)
     @Transactional
     public CreateOrderResponse createAdminOrder(CreateOrderRequest request, SessionAdmin sessionAdmin) {
-        // 1. 관리자 조회 및 권한 체크
+        // 관리자 정보 조회
         Admin admin = adminRepository.findById(sessionAdmin.getId())
                 .orElseThrow(() -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND));
 
-        if (admin.getStatus() != AdminStatus.ACTIVE) {
+        if (admin.getStatus() != AdminStatus.ACTIVE && admin.getStatus() != AdminStatus.APPROVED && admin.getRole()!= AdminRole.CS_ADMIN) {
             throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
-
-        // 2. 공통 로직 호출 (new 키워드 제거 및 중괄호 수정)
+        // 2. 공통 로직 호출
         return processOrder(request, admin, request.getCustomerId());
     }
 
     // 주문 생성 (고객 직접 주문)
     @Transactional
     public CreateOrderResponse createCustomerOrder(CreateOrderRequest request, Long currentCustomerId) {
-        // 고객 본인 세션 ID를 사용하여 공통 로직 호출
         return processOrder(request, null, currentCustomerId);
     }
-
     // 주문 처리 공통 로직 (Private)
     private CreateOrderResponse processOrder(CreateOrderRequest request, Admin admin, Long customerId) {
         // 수량 검증 (1개 미만일 경우 예외 발생)
@@ -92,15 +90,12 @@ public class OrderService {
         Page<GetOrderListResponse> orderPage = orderRepository.findAllOrders(keyword, status, pageable);
         return GetOrderPageResponse.from(orderPage);
     }
-
-    // 주문 상세 정보 조회 (고객용)
+    // 주문 상세 조회(고객)
     @Transactional(readOnly = true)
     public GetOrderDetailResponse getOrderDetail(Long orderId, Long currentCustomerId) {
         Order order = orderRepository.findById(orderId).orElseThrow(
                 () -> new OrderException(ErrorCode.ORDER_NOT_FOUND)
         );
-
-        // 본인 주문인지 검증
         if (!order.getCustomer().getId().equals(currentCustomerId)) {
             throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
@@ -114,7 +109,7 @@ public class OrderService {
         Admin admin = adminRepository.findById(sessionAdmin.getId())
                 .orElseThrow(() -> new AdminException(ErrorCode.ADMIN_NO_AUTHORITY));
 
-        if (admin.getStatus() != AdminStatus.ACTIVE) {
+        if (admin.getStatus() != AdminStatus.ACTIVE && admin.getStatus() != AdminStatus.APPROVED && admin.getRole()!= AdminRole.CS_ADMIN) {
             throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
 
