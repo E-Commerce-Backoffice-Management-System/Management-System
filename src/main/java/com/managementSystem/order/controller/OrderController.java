@@ -108,4 +108,14 @@ public class OrderController {
         CancelOrderResponse response = orderService.cancelOrder(id, request);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
     }
+
+    // 주문 취소
+    @PatchMapping("/orders/{id}/camcel")
+    public ResponseEntity<ApiResponse<CancelOrderResponse>> cancelOrder(
+            @PathVariable Long id,
+            @Valid @RequestBody CancelOrderRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(orderService.cancelOrder(id,request)));
+    }
 }
