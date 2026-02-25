@@ -3,6 +3,7 @@ package com.managementSystem.customer.controller;
 import com.managementSystem.customer.dto.*;
 import com.managementSystem.customer.service.CustomerService;
 import com.managementSystem.global.dto.ApiResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,6 +17,22 @@ import org.springframework.web.bind.annotation.*;
 public class CustomerController {
 
     private final CustomerService customerService;
+
+    // customer 회원 가입
+    @PostMapping("/customerSignup")
+    public ResponseEntity<ApiResponse<CustomerSignupResponse>> customerSignup(
+            @RequestBody CustomerSignupRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(customerService.customerSignup(request)));
+    }
+
+    // customer 로그 아웃
+    @PostMapping("/customerLogin")
+    public ResponseEntity<Void> customerLogin(
+            @Valid @RequestBody CustomerLoginRequest request, HttpSession session) {
+        SessionCustomer sessionCustomer = customerService.customerLogin(request);
+        session.setAttribute("sessionCustomer", sessionCustomer);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 
     @PostMapping("/customers")
     public ResponseEntity<ApiResponse<CreateCustomerResponse>> createCustomer(

@@ -13,19 +13,20 @@ public class AdminGetResponse {
     private final String email;
     private final String phoneNumber;
     private final AdminRole role;
-    private final AdminStatus adminStatus;
+    private final AdminStatus status;
     private final LocalDateTime createdAt;
-    private final LocalDateTime updatedAt;
+    private final LocalDateTime approvedAt;
 
 
-    public AdminGetResponse(Long id, String name, String email, String phoneNumber, AdminRole role, AdminStatus adminStatus, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public AdminGetResponse(Long id, String name, String email, String phoneNumber, AdminRole role,
+                            AdminStatus status, LocalDateTime createdAt, LocalDateTime approvedAt) {
         this.id = id;
         this.name = name; // 발제 내용 이름 추가
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.role = role;
-        this.adminStatus = adminStatus;
+        this.status = status;
         this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.approvedAt = approvedAt;
     }
 }
