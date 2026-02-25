@@ -30,6 +30,17 @@ public class Customer extends BaseEntity {
     private boolean isDeleted = false;
     private LocalDateTime deletedAt;
 
+    // 회원가입을 위한 비밀번호 필드 추가
+    private String password;
+
+    // 회원가입용 생성자
+    public Customer(String name, String email, String phoneNumber, String password) {
+        this.name = name;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+    }
+
     public Customer(String name, String email, String phoneNumber){
         this.name = name;
         this.email = email;

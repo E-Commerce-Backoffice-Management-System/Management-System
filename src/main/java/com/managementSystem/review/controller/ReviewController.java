@@ -20,7 +20,7 @@ public class ReviewController {
 
     // 리뷰 생성
     @PostMapping("/customers/{customerId}/products/{productId}/reviews")
-    // Session 로그인 시스템에서 userId나 user 정보를 받아서 매핑해주는것이
+    // Session 로그인 시스템에서 userId나 user 정보를 받아서 매핑
     public ResponseEntity<ApiResponse<CreateReviewResponse>> createReview(
             @PathVariable Long customerId,
             @PathVariable Long productId, // 상품에 종속되는 것이 (customerId , productId)
@@ -43,11 +43,13 @@ public class ReviewController {
 
     }
 
+    // 리뷰 단건 조회
     @GetMapping("/reviews/{reviewId}")
     public ResponseEntity<ApiResponse<GetReviewDetailResponse>> getReview(@PathVariable Long reviewId) {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(reviewService.getReviewDetail(reviewId)));
     }
 
+    // 리뷰 삭제
     @DeleteMapping("/admins/{adminId}/reviews/{reviewId}")
     public ResponseEntity<Void> deleteReview(
             @PathVariable Long adminId,

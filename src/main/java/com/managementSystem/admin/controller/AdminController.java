@@ -2,13 +2,14 @@ package com.managementSystem.admin.controller;
 
 import com.managementSystem.admin.dto.*;
 import com.managementSystem.admin.service.AdminService;
-import com.managementSystem.exception.AdminException;
-import com.managementSystem.exception.ErrorCode;
 import com.managementSystem.global.dto.ApiResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -98,16 +99,19 @@ public class AdminController {
 
     // 모두 조회 페이징.
     @GetMapping("/admins")
-    public ResponseEntity<ApiResponse<Page<AdminGetResponse>>> getAllAdmin(
-            @RequestParam(defaultValue = "") String keyword,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String direction
-    )
-     {
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(adminService.getAllAdmin(keyword, page, size, sortBy, direction)));
+    public ResponseEntity<Page<AdminGetResponse>> getAllAdmin(
+            @ModelAttribute AdminSearch search) {
+        Sort sort = search.getSortOrder().equalsIgnoreCase("asc") ?
+                Sort.by(search.getSortBy()).ascending() :
+                Sort.by(search.getSortBy()).descending();
+
+        Pageable pageable =  PageRequest.of(search.getPage() - 1, search.getSize(), sort);
+        Page<AdminGetResponse> response = adminService.getAdminList(search, pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    // @ModelAttribute >> 클라이언트가 보낸 여러 개의 파라미터를 자바 객체(DTO)로 찰떡같이 변환해서 담아주는 기특한 녀석
+    // 주로 Get방식의 쿼리스트링이나 Post 방식의 HTML 폼 데이터를 받을 때 사용
 
     // 비밀번호 변경
     @PatchMapping("/admins/{adminId}/password")

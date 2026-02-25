@@ -73,12 +73,14 @@ public class AdminService {
 
     // 관리자 전체 조회
     @Transactional(readOnly = true)
-    public Page<AdminGetResponse> getAllAdmin(String keyword, int page, int size, String sortBy, String direction) {
-        Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
-        Page<Admin> AdminPage = adminRepository.findByIsDeletedFalseAndNameContainingOrEmailContaining(keyword, keyword, pageable);
-
-        return AdminPage.map(admin -> new AdminGetResponse(
+    public Page<AdminGetResponse> getAdminList(AdminSearch search, Pageable pageable) {
+        Page<Admin> adminPage = adminRepository.searchAdmins(
+                search.getKeyword(),
+                search.getRole(),
+                search.getStatus(),
+                pageable
+        );
+        return adminPage.map(admin -> new AdminGetResponse(
                 admin.getId(),
                 admin.getName(),
                 admin.getEmail(),
@@ -86,7 +88,7 @@ public class AdminService {
                 admin.getRole(),
                 admin.getStatus(),
                 admin.getCreatedAt(),
-                admin.getUpdatedAt()
+                admin.getApprovedAt()
         ));
     }
 
