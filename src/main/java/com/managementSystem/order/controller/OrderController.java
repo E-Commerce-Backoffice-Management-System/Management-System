@@ -6,10 +6,8 @@ import com.managementSystem.global.dto.ApiResponse;
 import com.managementSystem.order.dto.*;
 import com.managementSystem.order.entity.OrderStatus;
 import com.managementSystem.order.service.OrderService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +27,7 @@ public class OrderController {
         if (sessionAdmin == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+        // 서비스 메서드명을 createAdminOrder로 호출해야 합니다.
         CreateOrderResponse response = orderService.createAdminOrder(request, sessionAdmin);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
     }
