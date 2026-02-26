@@ -39,7 +39,7 @@ public class OrderService {
         Admin admin = adminRepository.findById(sessionAdmin.getId())
                 .orElseThrow(() -> new AdminException(ErrorCode.ADMIN_USER_NOT_FOUND));
 
-        if (admin.getStatus() != AdminStatus.ACTIVE && admin.getStatus() != AdminStatus.APPROVED && admin.getRole()!= AdminRole.CS_ADMIN) {
+        if (admin.getStatus() != AdminStatus.ACTIVE && admin.getRole() != AdminRole.SUPER_ADMIN && admin.getRole()!= AdminRole.CS_ADMIN) {
             throw new AdminException(ErrorCode.ADMIN_NO_AUTHORITY);
         }
         // 2. 공통 로직 호출
