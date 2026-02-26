@@ -78,6 +78,10 @@
 브랜치 전략
 
 PR 방법 -> PR 병합방법
+## 📌 ERD
+------
+<img width="1777" height="4123" alt="Image" src="https://github.com/user-attachments/assets/0eba2cfc-b519-4638-8d0c-80d147607f24" />
+
 ### 📍 API 엔드포인트 요약 (Endpoints)
 
 #### 🔐 관리자 공통 (Admin - Login/Logout)
