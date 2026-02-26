@@ -4,7 +4,7 @@
 ## 관리자 공통 (OS/CS Admin)
 관리자 시스템 접근을 위한 로그인 API입니다. 세션/쿠키 기반으로 인증을 관리합니다.
 
-# 1. 관리자 로그인
+## 1. 관리자 로그인
 이메일과 비밀번호를 확인하여 관리자 세션을 생성합니다. 계정 상태가 활성(APPROVED) 상태인 관리자만 로그인이 가능합니다.
 
 - **Endpoint**: `POST` `/api/admins/login`
@@ -18,11 +18,11 @@
 ```
 - **Response (200 OK)**
 
-## OS/CS 관리자
+# OS/CS 관리자
 
 관리자 권한(OS Admin, CS Admin) 계정의 생성 및 본인 정보 관리를 위한 API입니다.
 
-# 1. 관리자 회원가입(Signup)
+## 1. 관리자 회원가입(Signup)
 
 새로운 관리자 계정 등록을 신청합니다. 초기 상태는 승인 대기(PENDING) 상태입니다.
 
@@ -59,7 +59,7 @@
 }
 ```
 
-# 2. 관리자 로그아웃 (Logout)
+## 2. 관리자 로그아웃 (Logout)
 
 현재 로그인된 관리자의 세션을 무효화합니다.
 
@@ -87,7 +87,7 @@
 }
 ```
 
-# 4. 내 프로필 수정 (UpdateProfile)
+## 4. 내 프로필 수정 (UpdateProfile)
 
 본인의 이름, 이메일, 전화번호 등 기본 인적 사항을 수정합니다.
 
@@ -115,7 +115,7 @@
 }
 ```
 
-# 5. 비밀번호 변경(Change Password)
+## 5. 비밀번호 변경(Change Password)
 
 현재 비밀번호 확인 후 새로운 비밀번호로 교체합니다.
 
@@ -316,7 +316,7 @@
 - **Response (204 No Content)**
 
 
-## 👥 Customer API 명세서
+# 👥 Customer API 명세서
 시스템의 일반 고객 정보를 관리하고 상태를 제어하기 위한 API입니다.
 
 ## 1. 고객 회원가입(Customer Signup)
@@ -497,10 +497,10 @@
 
 - **Response (204 No Content)
 
-## 📦 Product API 명세서
+# 📦 Product API 명세서
 시스템에서 판매되는 상품 정보를 관리하기 위한 API입니다.
 
-# 1. 상품 등록 (Create Product)
+## 1. 상품 등록 (Create Product)
 새로운 상품을 시스템에 등록합니다.
 
 - **Endpoint**: `POST` `/api/products`
@@ -534,7 +534,7 @@
 }
 ```
 
-# 2. 상품 리스트 조회 (Get Product List)
+## 2. 상품 리스트 조회 (Get Product List)
 등록된 모든 상품의 목록을 조회합니다. 페이징 및 검색 필터가 적용될 수 있습니다.
 
 - **Endpoint**: `GET` `/api/products`
@@ -566,7 +566,7 @@
 }
 ```
 
-# 3. 상품 상세 조회 (Get Product Detail)
+## 3. 상품 상세 조회 (Get Product Detail)
 특정 상품의 상세 설명과 정보를 조회합니다.
 
 - **Endpoint**: `GET` `/api/products/{productId}`
@@ -589,7 +589,7 @@
 }
 ```
 
-# 4. 상품 정보 수정 (Update Product)
+## 4. 상품 정보 수정 (Update Product)
 기존 상품의 이름, 가격, 재고 등을 부분 수정합니다.
 
 - **Endpoint**: `PATCH` `/api/products/{productId}`
@@ -627,10 +627,10 @@
 - **Response (204 No Content)**
 
 
-## 🛍️ Order API 명세서
+# 🛍️ Order API 명세서
 고객의 주문 생성부터 관리자의 주문 관리 및 취소 처리를 위한 API입니다.
 
-# 1. 주문 생성(CS 주문) (CS Order)
+## 1. 주문 생성(CS 주문) (CS Order)
 CS 관리자가 고객의 요청을 받아 수동으로 주문을 생성합니다.
 
 - **Endpoint**: `POST` `/api/admins/orders`
@@ -662,7 +662,7 @@ CS 관리자가 고객의 요청을 받아 수동으로 주문을 생성합니�
 }
 ```
 
-# 2. 주문 생성(고객) (Customer Order)
+## 2. 주문 생성(고객) (Customer Order)
 일반 고객이 자신의 계정으로 직접 주문을 생성합니다.
 
 - **Endpoint**: `POST` `/api/customers/orders`
@@ -694,7 +694,7 @@ CS 관리자가 고객의 요청을 받아 수동으로 주문을 생성합니�
 }
 ```
 
-# 3. 주문 리스트 조회(관리자) (Get Order List)
+## 3. 주문 리스트 조회(관리자) (Get Order List)
 관리자가 시스템의 모든 주문 내역을 확인합니다.
 
 - **Endpoint**: `POST` `/api/orders`
@@ -736,7 +736,7 @@ CS 관리자가 고객의 요청을 받아 수동으로 주문을 생성합니�
 }
 ```
 
-# 4. 주문 상세 조회(관리자) (Get Order Detail)
+## 4. 주문 상세 조회(관리자) (Get Order Detail)
 관리자가 특정 주문의 결제, 배송 등 상세 내역을 확인합니다.
 
 - **Endpoint**: `GET` `/api/admins/orders/{orderId}`
@@ -763,7 +763,7 @@ CS 관리자가 고객의 요청을 받아 수동으로 주문을 생성합니�
 }
 ```
 
-# 5. 주문 상세 조회(고객) (Get Order Detail)
+## 5. 주문 상세 조회(고객) (Get Order Detail)
 고객이 특정 주문의 결제, 배송 등 상세 내역을 확인합니다.
 
 - **Endpoint**: `GET` `/api/customers/orders/{orderId}`
@@ -790,7 +790,7 @@ CS 관리자가 고객의 요청을 받아 수동으로 주문을 생성합니�
 }
 ```
 
-# 6. 주문 취소
+## 6. 주문 취소
 접수된 주문을 취소 처리하고 상태를 업데이트합니다.
 
 - **Endpoint**: `GET` `/api/orders/{orderId}/cancel`
@@ -807,10 +807,10 @@ CS 관리자가 고객의 요청을 받아 수동으로 주문을 생성합니�
 }
 ```
 
-## 💬 Review API 명세서
+# 💬 Review API 명세서
 상품 구매 후 고객이 남기는 리뷰를 관리하고 조회하기 위한 API입니다.
 
-# 1. 리뷰 생성 (Create Review)
+## 1. 리뷰 생성 (Create Review)
 특정 상품을 구매한 고객이 리뷰를 작성합니다.
 
 - **Endpoint**: `POST` `/api/customers/{customerId}/products/{productId}/reviews`
@@ -841,7 +841,7 @@ CS 관리자가 고객의 요청을 받아 수동으로 주문을 생성합니�
 ```
 
 
-# 2. 리뷰 리스트 조회 (Get Review List)
+## 2. 리뷰 리스트 조회 (Get Review List)
 시스템에 등록된 전체 리뷰를 조회합니다. (주로 상품 상세 페이지나 관리자 페이지에서 사용)
 
 - **Endpoint**: `POST` `/api/reviews`
@@ -894,7 +894,7 @@ CS 관리자가 고객의 요청을 받아 수동으로 주문을 생성합니�
 }
 ```
 
-# 3. 리뷰 상세 조회 (Get Review Detail)
+## 3. 리뷰 상세 조회 (Get Review Detail)
 특정 리뷰의 전체 내용을 상세히 확인합니다.
 
 - **Endpoint**: `POST` `/api/reviews/{reviewId}`
@@ -916,7 +916,7 @@ CS 관리자가 고객의 요청을 받아 수동으로 주문을 생성합니�
 }
 ```
 
-# 4. 리뷰 삭제 (Delete Review)
+## 4. 리뷰 삭제 (Delete Review)
 부적절한 내용이나 허위 리뷰를 관리자가 강제로 삭제합니다.
 
 - **Endpoint**: `POST` `/api/admins/{adminId}/reviews/{reviewId}`
