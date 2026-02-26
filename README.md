@@ -1,3 +1,25 @@
+# 404 Not Missing 
+# E-Commerce BackOffice Management System
+
+## 📌 프로젝트 소개
+이커머스 서비스의 핵심은 **고객, 상품, 주문 데이터를 효율적으로 관리하는 것**입니다.
+
+이를 위해 관리자는 **백오피스(관리자 페이지)**를 사용하여 데이터를 다룹니다.
+
+이번 프로젝트에서는 실제 백오피스 환경을 가정하고, 고객, 상품, 주문 정보를 관리할 수 있는 기능을 직접 구현해봅니다. 또한 데이터가 많아질 때를 대비해 **검색, 정렬, 페이징 기능**까지 함께 만들어봅니다.
+
+이 프로젝트의 목표는 관리자가 고객, 상품, 주문 데이터를 **쉽고 정확하게 관리할 수 있는 기본 시스템**을 구축하는 것입니다.
+
+## 📌 멤버 소개
+
+| 구분   | 이름    | 역할                                        |
+|------|-------|-------------------------------------------|
+| 팀장   | 최형민   | 역할 분담 및 팀 관리, 관리자 & 에러 처리 파트, 프로젝트 모의 테스트 |
+| 팀원   | 정호진   | 관리자 & 리뷰 파트, 프로젝트 모의 테스트                  |
+| 팀원   | 박수지   | 고객 & 주문 파트                                |
+| 팀원   | 류호정   | 상품 & 주문 파트                                |
+| 튜터   | 조용석   | SA 피드백 & 동기부여, Git 피드백 & 기술 질의응답          |
+
 ## 📌 커밋 컨벤션
 
 | Prefix | 설명 | 예시 |
@@ -7,6 +29,26 @@
 | `refactor/` | 기능 변경 없는 코드 개선 | `refactor/member-service`, `refactor/folder-structure` |
 | `docs/` | 문서 수정 | `docs/readme`, `docs/api-spec` |
 | `chore/` | 설정 변경, 패키지 업데이트 | `chore/build-gradle`, `chore/github-action` |
+
+## 📅 프로젝트 일정 (8일 스프린트)
+
+| 단계 | 날짜 | 내용 |
+|------|------|------|
+| 1 | 2월 19일 | 프로젝트 파악 및 환경 세팅 |
+| 2 | 2월 20일 | 역할 분담 및 일정 설정 |
+| 3 | 2월 21일 ~ 23일 | 각자 맡은 기능 구현 |
+| 4 | 2월 24일 | 통합 테스트 및 오류 수정 |
+| 5 | 2월 25일 | 프로젝트 초안 완성 및 재테스트 |
+| 6 | 2월 26일 | 최종 제출 및 발표 |
+
+## 🛠 기술 스택
+
+| 구분 | 기술 |
+|------|------|
+| Language | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" width="20"/> Java 17 |
+| Framework | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="20"/> Spring Boot 4.0.2 |
+| Build Tool | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/gradle/gradle-original.svg" width="20"/> Gradle 9.3.0 |
+| Database | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" width="20"/> MySQL 8.4.8 |
 
 ## 📌 merge 할경우 
 
@@ -36,6 +78,10 @@
 브랜치 전략
 
 PR 방법 -> PR 병합방법
+## 📌 ERD
+------
+<img width="1777" height="4123" alt="Image" src="https://github.com/user-attachments/assets/0eba2cfc-b519-4638-8d0c-80d147607f24" />
+
 ### 📍 API 엔드포인트 요약 (Endpoints)
 
 #### 🔐 관리자 공통 (Admin - Login/Logout)
