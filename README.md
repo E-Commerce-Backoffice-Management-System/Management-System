@@ -50,6 +50,41 @@
 | Build Tool | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/gradle/gradle-original.svg" width="20"/> Gradle 9.3.0 |
 | Database | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" width="20"/> MySQL 8.4.8 |
 
+## ⚙️ 설치 및 실행
+### 1. 프로젝트 클론
+
+```bash
+git clone https://github.com/E-Commerce-Backoffice-Management-System/Management-System.git
+cd E-Commerce-Backoffice-Management-System
+```
+### 2.데이터베이스 설정
+```bash
+// MySQL에서 데이터베이스 생성
+// 애플리케이션 실행 시 JPA(Hibernate)가 테이블을 자동 생성합니다.
+CREATE DATABASE plan CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+### 3.애플리케이션 설정
+```bash
+src/main/resources/application.properties 파일에서 데이터베이스 정보를 설정.
+
+spring.datasource.url=jdbc:mysql://localhost:3306/management
+spring.datasource.username=root
+spring.datasource.password=YOUR_PASSWORD
+
+spring.jpa.hibernate.ddl-auto=create
+spring.jpa.show-sql=true
+```
+
+### 4.애플리케이션 실행
+#### Gradle 실행
+```bash
+./gradlew bootRun
+```
+#### 또는 JAR 파일 실행
+```bash
+./gradlew build
+java -jar build/libs/Management-System-0.0.1-SNAPSHOT.jar
+```
 ## 📌 merge 할경우 
 
 - 작업 전 조원들과 충분한 소통 후 진행.
