@@ -30,6 +30,7 @@ public enum ErrorCode {
     ADMIN_ALREADY_APPROVE(HttpStatus.BAD_REQUEST,"A019", "이미 승인된 관리자 입니다."),
     ADMIN_ALREADY_REJECTED(HttpStatus.BAD_REQUEST, "A020", "이미 거부된 관리자 입니다."),
     ADMIN_DUPLICATE_PASSWORD(HttpStatus.BAD_REQUEST, "A021", "변경 전 비밀번호와 같을 수 없습니다."),
+    ADMIN_DUPLICATE_STATUS(HttpStatus.BAD_REQUEST, "A022", "이미 변경된 상태입니다."),
 
 
     // Customer 에러 처리
@@ -57,8 +58,7 @@ public enum ErrorCode {
 
     // 공통 에러 (G로 시작)
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "G001", "잘못된 입력값입니다."),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "G002", "서버 내부 오류가 발생했습니다."),
-    GLOBAL_MISTAKE_PASSWORD(HttpStatus.UNAUTHORIZED,"G003" ,"비밀번호가 일치하지 않습니다.");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "G002", "서버 내부 오류가 발생했습니다.");
 
     private final HttpStatus status;
     private final String code;
