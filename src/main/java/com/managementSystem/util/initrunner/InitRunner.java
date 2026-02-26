@@ -19,11 +19,11 @@ public class InitRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        if (adminRepository.findByEmail("superAdmin@system.com").isEmpty()) {
+        if (adminRepository.findByEmail("superSparta@system.com").isEmpty()) {
 
             Admin admin = new Admin(
                     "갓갓갓",
-                    "superAdmin@system.com",
+                    "superSparta@system.com",
                     passwordEncoder.encode("12345678"),
                     "010-1234-5678",
                     AdminRole.SUPER_ADMIN,
