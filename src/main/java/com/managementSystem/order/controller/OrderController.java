@@ -6,10 +6,8 @@ import com.managementSystem.global.dto.ApiResponse;
 import com.managementSystem.order.dto.*;
 import com.managementSystem.order.entity.OrderStatus;
 import com.managementSystem.order.service.OrderService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,7 +47,7 @@ public class OrderController {
     }
 
     // [관리자 전용] 주문 리스트 조회 (페이징/키워드검색)
-    @GetMapping("orders")
+    @GetMapping("/orders")
     public ResponseEntity<ApiResponse<GetOrderPageResponse>> getOrderList(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) OrderStatus status,

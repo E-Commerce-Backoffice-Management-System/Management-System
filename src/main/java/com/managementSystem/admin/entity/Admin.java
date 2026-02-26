@@ -111,6 +111,9 @@ public class Admin extends BaseEntity {
     }
 
     public void AdminStatusUpdate(AdminStatus status){
+        if (this.status == status){
+            throw new AdminException(ErrorCode.ADMIN_DUPLICATE_STATUS);
+        }
         this.status=status;
     }
 

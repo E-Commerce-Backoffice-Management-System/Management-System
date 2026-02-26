@@ -30,6 +30,7 @@ public enum ErrorCode {
     ADMIN_ALREADY_APPROVE(HttpStatus.BAD_REQUEST,"A019", "이미 승인된 관리자 입니다."),
     ADMIN_ALREADY_REJECTED(HttpStatus.BAD_REQUEST, "A020", "이미 거부된 관리자 입니다."),
     ADMIN_DUPLICATE_PASSWORD(HttpStatus.BAD_REQUEST, "A021", "변경 전 비밀번호와 같을 수 없습니다."),
+    ADMIN_DUPLICATE_STATUS(HttpStatus.BAD_REQUEST, "A022", "이미 변경된 상태입니다."),
 
 
     // Customer 에러 처리
